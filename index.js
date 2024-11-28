@@ -53,8 +53,7 @@ app.post("/api/trigger-job", (req, res) => {
       process.exit(0);
     })
     .catch((err) => {
-      console.error("Error during database disconnection:", err);
-      res.status(500).send("Failed to stop the server.");
+      res.status(500).send("Failed Schedule");
       process.exit(1);
     });
 });
