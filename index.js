@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import schedule from "node-schedule";
 import userRouter from "./routes/user.routes.js";
 import authRouter from "./routes/auth.route.js";
 import projectRouter from "./routes/project.route.js";
@@ -44,24 +45,18 @@ app.use("/api/issuance", issuenceRouter);
 app.use("/api/history", historyRouter);
 app.use("/api/department", departmentRouter);
 app.use("/api/subproject", subprojectRouter);
-
-// Test route for dogs (GET request example)
-app.get("/api/dogs", (req, res) => {
-  const dogNames = [
-    "Buddy",
-    "Max",
-    "Charlie",
-    "Bella",
-    "Lucy",
-    "Molly",
-    "Daisy",
-    "Rocky",
-  ];
-
-  res.status(200).json({
-    success: true,
-    dogs: dogNames,
-  });
+app.post("/api/trigger-job", (req, res) => {
+  mongoose
+    .disconnect()
+    .then(() => {
+      res.status(200).send("Schedule Enable");
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error("Error during database disconnection:", err);
+      res.status(500).send("Failed to stop the server.");
+      process.exit(1);
+    });
 });
 
 app.use((req, res, next) => {
