@@ -16,11 +16,6 @@ import subprojectRouter from "./routes/subproject.route.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-console.log(__dirname);
-
 dotenv.config();
 
 mongoose
@@ -36,10 +31,8 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(express.static(path.join(__dirname, '/client/dist')));
-app.get('*', (req, res) =>
-  res.sendFile(path.join(__dirname, 'client/dist/index.html'))
-);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 // Define API routes
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
@@ -91,3 +84,8 @@ app.use((err, req, res, next) => {
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
+
+app.use(express.static(path.join(__dirname, '/client/dist')));
+app.get('*', (req, res) =>
+  res.sendFile(path.join(__dirname, 'client/dist/index.html'))
+);
