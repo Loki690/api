@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { IItemProps } from "./IItem";
-import { ReceivedItem } from "@/types/ReceivedItemTypes";
-import { Items } from "@/types/ItemTypes";
-import { StockIssuance, User } from "./IIssuing";
-import { IDepartments } from "./IDepartment";
-import { ISubprojects } from "./ISubproject";
-import { IProjectProps } from "./IProject";
+import { IItemProps } from './IItem';
+import { ReceivedItem } from '@/types/ReceivedItemTypes';
+import { Items } from '@/types/ItemTypes';
+import { StockIssuance, User } from './IIssuing';
+import { IDepartments } from './IDepartment';
+import { ISubprojects } from './ISubproject';
+import { IProjectProps } from './IProject';
 
 export interface IReceivingProps {
   _id?: string | any;
@@ -41,4 +41,7 @@ export interface UpdateReceivingItemProps {
   subprojects?: ISubprojects | any;
   projects?: IProjectProps | any;
   issuanceNo?: any;
+  crewUsers?: User | any;
+  inventoryUsers?: any;
+  headUsers?: any;
 }

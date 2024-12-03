@@ -65,7 +65,6 @@ export default function IssuingView({
           <div ref={contentRef}>
             <div className="grid grid-cols-2 md:grid-cols-2">
               <div>
-                <p>Department: {issuance.department?.departmentName}</p>
                 <p>Project: {issuance.projects?.subprojectName}</p>
                 <p>Purpose: {issuance.purpose}</p>
                 <p>

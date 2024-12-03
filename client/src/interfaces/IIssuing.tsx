@@ -1,12 +1,11 @@
-import { IDepartments } from "./IDepartment";
-import { ISubprojects } from "./ISubproject";
+import { ISubprojects } from './ISubproject';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface StockIssuance {
   _id?: string | any;
   stockIssuanceNo?: string | any;
   dateIssued: Date | any;
-  department: IDepartments | any;
+  //department: IDepartments | any;
   projects: ISubprojects | any;
   purpose: string;
   requisitioner: User | any;

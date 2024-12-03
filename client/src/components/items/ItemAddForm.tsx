@@ -1,25 +1,25 @@
-import { FormModalProps } from '@/interfaces/IItem';
-import { useItemStore } from '@/store/userItemStore';
-import { useQueryClient } from '@tanstack/react-query';
+import { FormModalProps } from "@/interfaces/IItem";
+import { useItemStore } from "@/store/userItemStore";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog';
-import { useParams } from 'react-router-dom';
-import { itemFormSchema } from '@/schema/itemFormSchema';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '../ui/form';
-import { Input } from '../ui/Input';
-import { addItems } from '@/services/ItemService';
-import { Button } from '../ui/button';
-import { toast } from '@/hooks/use-toast';
-import { LoaderCircle } from 'lucide-react';
-import ItemUpload from './ItemUpload';
+} from "../ui/dialog";
+import { useParams } from "react-router-dom";
+import { itemFormSchema } from "@/schema/itemFormSchema";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
+import { Input } from "../ui/Input";
+import { addItems } from "@/services/ItemService";
+import { Button } from "../ui/button";
+import { toast } from "@/hooks/use-toast";
+import { LoaderCircle } from "lucide-react";
+import ItemUpload from "./ItemUpload";
 
 export default function ItemAddForm({ isOpen, onClose }: FormModalProps) {
   const { projectId } = useParams() as { projectId: string };
@@ -31,15 +31,15 @@ export default function ItemAddForm({ isOpen, onClose }: FormModalProps) {
   const form = useForm<z.infer<typeof itemFormSchema>>({
     resolver: zodResolver(itemFormSchema),
     defaultValues: {
-      itemCode: '',
-      itemDescription: '',
-      unit: '',
+      itemCode: "",
+      itemDescription: "",
+      unit: "",
       qtyIn: 0,
       qtyOut: 0,
       stockOnHand: 0,
-      toolLocator: '',
-      remarks: '',
-      project: '',
+      toolLocator: "",
+      remarks: "",
+      project: "",
     },
   });
 
@@ -48,12 +48,12 @@ export default function ItemAddForm({ isOpen, onClose }: FormModalProps) {
     itemAdd(values, {
       onSuccess: (data) => {
         addItem(data, projectId);
-        queryClient.invalidateQueries({ queryKey: ['getItems'] });
-        toast({ title: 'Item added', description: 'Item successfully added' });
+        queryClient.invalidateQueries({ queryKey: ["getAllItems"] });
+        toast({ title: "Item added", description: "Item successfully added" });
         onClose();
       },
       onError: (err) => {
-        toast({ title: 'Error adding', description: `${err}` });
+        toast({ title: "Error adding", description: `${err}` });
       },
     });
   }
@@ -201,7 +201,7 @@ export default function ItemAddForm({ isOpen, onClose }: FormModalProps) {
                       aria-hidden="true"
                     />
                   ) : (
-                    'Submit'
+                    "Submit"
                   )}
                 </Button>
               </form>

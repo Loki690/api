@@ -51,11 +51,6 @@ export const issuedItemColumns: ColumnDef<StockIssuance>[] = [
     },
   },
   {
-    accessorKey: 'department',
-    header: 'Department',
-    cell: ({ row }) => <div>{row.original.department?.departmentName}</div>,
-  },
-  {
     accessorKey: 'projects',
     header: 'Project Name',
     cell: ({ row }) => <div>{row.original.projects?.subprojectName}</div>,

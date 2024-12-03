@@ -4,7 +4,7 @@ export type User = {
   firstName: string;
   lastName: string;
   project: string | any;
-  isAdmin: boolean;
+  role: string;
 };
 export type UsersUpdate = {
   id: number;
@@ -12,5 +12,5 @@ export type UsersUpdate = {
   firstName: string;
   lastName: string;
   project: string | any;
-  isAdmin: boolean;
+  role: string;
 };

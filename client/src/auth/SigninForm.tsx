@@ -1,21 +1,24 @@
-import { useState } from 'react';
-
-import { useNavigate } from 'react-router-dom';
-
-import { useAuthStore } from '@/store/useAuthStore';
-
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { toast } from '@/hooks/use-toast';
-import { useSignIn } from '@/services/authService';
-import { LoaderCircle } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/Card';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/useAuthStore";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/hooks/use-toast";
+import { useSignIn } from "@/services/authService";
+import { LoaderCircle } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 
 const SigninForm: React.FC = () => {
-  const [formData, setFormData] = useState({ userCode: '', password: '' });
+  const [formData, setFormData] = useState({ userCode: "", password: "" });
   const navigate = useNavigate();
-
   const { signIn } = useAuthStore();
   const { mutate: signInUser, isPending } = useSignIn();
 
@@ -26,30 +29,51 @@ const SigninForm: React.FC = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.userCode || !formData.password) {
-      toast({ title: 'Warning!', description: 'Please fill up the fields' });
+      toast({ title: "Warning!", description: "Please fill up the fields" });
       return;
     }
 
     signInUser(formData, {
       onSuccess: (data) => {
         signIn(data);
-        // Check if the user is an admin
-        if (data.isAdmin) {
-          navigate('/admin/items');
-          toast({
-            title: 'Admin Login Successful',
-            description: 'Redirected to Admin Dashboard',
-          });
-        } else {
-          navigate(`/items/${data.project}`);
-          toast({
-            title: 'Login Successfully',
-            description: 'Redirected to project',
-          });
+
+        // Role-based navigation
+        switch (data.role) {
+          case "Admin":
+            navigate(`/admin/items/${data.project}`);
+            toast({
+              title: "Admin Login Successful",
+              description: "Redirected to Admin Dashboard",
+            });
+            break;
+
+          case "Head":
+            navigate(`/admin/items/${data.project}`);
+            toast({
+              title: "Head Login Successful",
+              description: "Redirected to Dashboard",
+            });
+            break;
+
+          case "Inventory":
+          case "Crew":
+            navigate(`/items/${data.project}`);
+            toast({
+              title: "Login Successful",
+              description: "Redirected to Project",
+            });
+            break;
+
+          default:
+            toast({
+              title: "Access Denied",
+              description: "Your role does not have access to the system",
+            });
+            break;
         }
       },
       onError: (error) => {
-        toast({ title: error.message, description: 'Please try again!' });
+        toast({ title: error.message, description: "Please try again!" });
       },
     });
   };
@@ -65,11 +89,6 @@ const SigninForm: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {/* {errorMessage && (
-                    <p className="font-bold bg-red-200/30 text-red-900">
-                      {errorMessage}
-                    </p>
-                  )} */}
             <div className="space-y-1">
               <Label htmlFor="userCode">Employee Code</Label>
               <Input
@@ -100,7 +119,7 @@ const SigninForm: React.FC = () => {
                   aria-hidden="true"
                 />
               ) : (
-                'Sign In'
+                "Sign In"
               )}
             </Button>
           </CardFooter>

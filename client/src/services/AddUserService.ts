@@ -1,19 +1,19 @@
-import { IUserListProps } from '@/interfaces/IUser';
-import { useMutation } from '@tanstack/react-query';
+import { IUserListProps } from "@/interfaces/IUser";
+import { useMutation } from "@tanstack/react-query";
 
 export const useCreateUserWithProject = () => {
   return useMutation({
     mutationFn: async (userData: IUserListProps) => {
       const res = await fetch(`/api/user/createUserWithProject`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(userData),
       });
 
       if (!res.ok) {
-        throw new Error('Failed to create user');
+        throw new Error("Failed to create user");
       }
 
       return res.json();
@@ -25,10 +25,10 @@ export const deleteUsers = () => {
   return useMutation({
     mutationFn: async (userId: string) => {
       const res = await fetch(`/api/user/delete/${userId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
       if (!res.ok) {
-        throw new Error('Failed to delete the user');
+        throw new Error("Failed to delete the user");
       }
       return userId;
     },
@@ -45,15 +45,41 @@ export const updateUser = () => {
       userData: IUserListProps;
     }) => {
       const res = await fetch(`/api/user/update/${userId}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(userData),
       });
       if (!res.ok) {
-        throw new Error('Failed to update the user');
+        throw new Error("Failed to update the user");
       }
+      return res.json();
+    },
+  });
+};
+
+export const updateUserProjects = () => {
+  return useMutation({
+    mutationFn: async ({
+      userId,
+      newProject,
+    }: {
+      userId: string;
+      newProject: string;
+    }) => {
+      const res = await fetch(`/api/user/changeProject/${userId}`, {
+        method: "PATCH", // PATCH is often used for partial updates like changing a role
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ project: newProject }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update user role");
+      }
+
       return res.json();
     },
   });

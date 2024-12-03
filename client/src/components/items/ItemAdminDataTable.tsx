@@ -1,55 +1,57 @@
-import { useItemStore } from '@/store/userItemStore';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
-import { DataTableSkeleton } from '../DataTableSkeleton';
-import { Input } from '../ui/Input';
-import { DataTableItem } from '../DataTableItem';
-import { ItemPagination } from './ItemPagination';
-import { itemColumns } from './ItemColumn';
-import { debounce } from '@/utility/debounce';
-import { useParams } from 'react-router-dom';
+import { useItemStore } from "@/store/userItemStore";
+import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { DataTableItem } from "../DataTableItem";
+import { itemColumns } from "./ItemColumn";
+import { DataTableSkeleton } from "../DataTableSkeleton";
+import { IItemProps } from "@/interfaces/IItem";
+import { Input } from "../ui/Input";
+import { ItemPagination } from "./ItemPagination";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Filter } from "lucide-react";
+import ItemAdd from "./ItemAdd";
 
-export default function ItemAdminDataTable() {
-  const [searchTerm, setSearchTerm] = useState('');
+const ITEMS_PER_PAGE = 10;
+
+export default function ItemDataTable() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const { projectId } = useParams();
-  const {
-    getAllItems,
-    setCurrentPage,
-    currentPage,
-    itemsPerPage,
-    setItemsPerPage,
-  } = useItemStore();
-  const { data: itemsData, isPending } = useQuery<any>({
-    queryKey: ['getAllItems', searchTerm, currentPage, itemsPerPage],
-    queryFn: () =>
-      getAllItems(projectId, searchTerm, currentPage, itemsPerPage),
-    placeholderData: keepPreviousData, // Keep old data during refetch
+  const { getAllItems, currentPage, setCurrentPage } = useItemStore();
+  const { data: items = [], isPending } = useQuery({
+    queryKey: ["getAllItems"],
+    queryFn: () => getAllItems(projectId),
   });
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page); // Update store state
-  };
+  const filteredItems = items?.filter(
+    (item: IItemProps) =>
+      (item.itemDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.itemCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.project?.name.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (!selectedProject || item.project?.name === selectedProject)
+  );
 
-  const handleLimitChange = (limit: number) => {
-    setItemsPerPage(limit);
-    setCurrentPage(1); // Reset to first page
-  };
-
-  useEffect(() => {
-    setCurrentPage(currentPage); // Sync currentPage from pagination
-  }, [currentPage, setCurrentPage]);
-
-  const [localSearch, setLocalSearch] = useState(searchTerm);
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   useEffect(() => {
-    const debouncedSearch = debounce(() => {
-      setSearchTerm(localSearch); // Update store search term
-      setCurrentPage(1); // Reset to first page on new search
-    }, 300);
+    if (searchTerm || selectedProject) {
+      setCurrentPage(1);
+    }
+  }, [searchTerm, selectedProject, setCurrentPage]);
 
-    debouncedSearch();
-    return () => debouncedSearch.cancel();
-  }, [localSearch, setSearchTerm, setCurrentPage]);
+  const uniqueProjects = Array.from(
+    new Set(items.map((item: IItemProps) => item.project?.name))
+  ).filter(Boolean);
 
   return (
     <div>
@@ -58,18 +60,42 @@ export default function ItemAdminDataTable() {
       ) : (
         <div>
           <div className="flex justify-between mb-2">
-            <Input
-              placeholder="Search Item"
-              value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
-              className="max-w-sm"
-            />
+            <div className="flex gap-2">
+              <Input
+                placeholder="Search Item"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                className="max-w-sm"
+              />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                    <Filter className="mr-2 h-4 w-4" />
+                    {selectedProject || "Filter by Project"}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => setSelectedProject(null)}>
+                    All Projects
+                  </DropdownMenuItem>
+                  {uniqueProjects.map((project) => (
+                    <DropdownMenuItem
+                      key={project}
+                      onClick={() => setSelectedProject(project)}
+                    >
+                      {project}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <ItemAdd />
           </div>
-          <DataTableItem columns={itemColumns} data={itemsData?.items || []} />
+          <DataTableItem columns={itemColumns} data={paginatedItems || []} />
           <ItemPagination
-            totalItems={itemsData?.totalItems || 0}
-            onPageChange={handlePageChange}
-            onLimitChange={handleLimitChange}
+            totalItems={filteredItems.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
           />
         </div>
       )}

@@ -2,8 +2,9 @@ import { useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Outlet, Navigate, useParams } from 'react-router-dom';
 
-const PrivateRoute: React.FC<{ adminOnly?: boolean }> = ({
-  adminOnly = false,
+const PrivateRoute: React.FC<{ adminOnly?: boolean; exclude?: string[] }> = ({
+  adminOnly,
+  exclude,
 }) => {
   const {
     isAuthenticated,
@@ -15,7 +16,6 @@ const PrivateRoute: React.FC<{ adminOnly?: boolean }> = ({
 
   useEffect(() => {
     if (!isAuthenticated && !signedOut) {
-      // Fetch user data if not already authenticated
       getSelf();
     }
   }, [isAuthenticated, signedOut, getSelf]);
@@ -24,10 +24,21 @@ const PrivateRoute: React.FC<{ adminOnly?: boolean }> = ({
     return <Navigate to="/" />;
   }
 
-  if (adminOnly && !currentUser.isAdmin) {
+  // Restrict routes for roles that aren't Admin or Head
+  if (adminOnly && !['Admin', 'Head'].includes(currentUser.role)) {
     return <Navigate to="/unauthorized" />;
   }
 
+  // Restrict specific routes for the Head role
+  if (
+    exclude &&
+    currentUser.role === 'Head' &&
+    exclude.some((path) => window.location.pathname.includes(path))
+  ) {
+    return <Navigate to="/unauthorized" />;
+  }
+
+  // Ensure projectId matches the user's assigned project
   if (projectId && currentUser.project !== projectId) {
     return <Navigate to="/unauthorized" />;
   }

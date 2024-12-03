@@ -1,10 +1,10 @@
-import bcryptjs from "bcryptjs";
-import { errorHandler } from "../utils/error.js";
-import User from "../models/user.model.js";
-import Project from "../models/project.model.js";
+import bcryptjs from 'bcryptjs';
+import { errorHandler } from '../utils/error.js';
+import User from '../models/user.model.js';
+import Project from '../models/project.model.js';
 
 export const test = (req, res) => {
-  res.send("API routes is working!");
+  res.send('API routes is working!');
 };
 
 export const updateUser = async (req, res, next) => {
@@ -13,11 +13,10 @@ export const updateUser = async (req, res, next) => {
       return next(errorHandler(403, "You're not allowed to update this user"));
     }
 
-    const { userCode, firstName, lastName, password, email, isAdmin } =
-      req.body;
+    const { userCode, firstName, lastName, password, email, role } = req.body;
 
     if (password && password.length < 7) {
-      return next(errorHandler(400, "Password must be at least 7 characters"));
+      return next(errorHandler(400, 'Password must be at least 7 characters'));
     }
 
     const updateData = {
@@ -25,7 +24,7 @@ export const updateUser = async (req, res, next) => {
       firstName,
       lastName,
       email,
-      isAdmin,
+      role,
       password: password ? bcryptjs.hashSync(password, 10) : undefined,
     };
 
@@ -70,13 +69,13 @@ export const updateUser = async (req, res, next) => {
 export const deleteUser = async (req, res, next) => {
   // Check if the user is an admin
   if (!req.params.userId) {
-    return next(errorHandler(403, "Only admins are allowed to delete users"));
+    return next(errorHandler(403, 'Only admins are allowed to delete users'));
   }
 
   try {
     // Perform the deletion
     await User.findByIdAndDelete(req.params.userId);
-    res.status(200).json({ message: "User deleted successfully" });
+    res.status(200).json({ message: 'User deleted successfully' });
   } catch (error) {
     next(error);
   }
@@ -84,18 +83,17 @@ export const deleteUser = async (req, res, next) => {
 
 export const signout = (req, res, next) => {
   try {
-    res.clearCookie("access_token").status(200).json("User has been sign out");
+    res.clearCookie('access_token').status(200).json('User has been sign out');
   } catch (error) {
     next(error);
   }
 };
 
 export const createUserWithProject = async (req, res, next) => {
-  const { userCode, firstName, lastName, password, project, isAdmin } =
-    req.body;
+  const { userCode, firstName, lastName, password, project, role } = req.body;
 
   if (!userCode || !firstName || !lastName || !password || !project) {
-    return next(errorHandler(400, "All fields are required"));
+    return next(errorHandler(400, 'All fields are required'));
   }
 
   try {
@@ -104,7 +102,7 @@ export const createUserWithProject = async (req, res, next) => {
     const existingProject = await Project.findOne({ name: project });
 
     if (!existingProject) {
-      return next(errorHandler(404, "Project not found"));
+      return next(errorHandler(404, 'Project not found'));
     }
 
     const newUser = new User({
@@ -112,7 +110,7 @@ export const createUserWithProject = async (req, res, next) => {
       firstName,
       lastName,
       password: hashedPassword,
-      isAdmin,
+      role,
       project: existingProject._id, // Link user to the project by ID
     });
 
@@ -124,7 +122,7 @@ export const createUserWithProject = async (req, res, next) => {
         userCode: savedUser.userCode,
         firstName: savedUser.firstName,
         lastName: savedUser.lastName,
-        isAdmin: savedUser.isAdmin,
+        role: savedUser.role,
       },
       project: {
         id: existingProject._id,
@@ -153,7 +151,7 @@ export const getUserbyId = async (req, res, next) => {
       project: req.params.id,
     });
     if (!user) {
-      return next(errorHandler(404, "User not found"));
+      return next(errorHandler(404, 'User not found'));
     }
     res.status(200).json(user);
   } catch (error) {
@@ -163,7 +161,7 @@ export const getUserbyId = async (req, res, next) => {
 
 export const getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.find().populate("project", "name");
+    const users = await User.find().populate('project', 'name');
     res.status(200).json(users);
   } catch (error) {
     next(error);
@@ -176,5 +174,29 @@ export const getSelf = async (req, res, next) => {
     res.status(200).json(user);
   } catch (error) {
     next(error);
+  }
+};
+
+export const updateUserProject = async (req, res, next) => {
+  const { userId } = req.params;
+  const { project } = req.body;
+
+  try {
+    // Find the user and update the role
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(errorHandler(404, 'User not found'));
+    }
+
+    user.project = project; // Update role
+    await user.save(); // Save changes
+
+    res.status(200).json({
+      success: true,
+      message: 'User role updated successfully',
+      user: { id: user._id, userCode: user.userCode, project: user.project },
+    });
+  } catch (error) {
+    next(error); // Handle errors
   }
 };

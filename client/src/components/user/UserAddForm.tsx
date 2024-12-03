@@ -50,7 +50,7 @@ export default function UserAddForm({ isOpen, onClose }: FormModalProps) {
       userCode: '',
       firstName: '',
       lastName: '',
-      isAdmin: false,
+      role: '',
       password: '',
       project: '',
     },
@@ -144,14 +144,12 @@ export default function UserAddForm({ isOpen, onClose }: FormModalProps) {
               ></FormField>
               <FormField
                 control={form.control}
-                name="isAdmin"
+                name="role"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Role</FormLabel>
                     <Select
-                      onValueChange={(value) =>
-                        field.onChange(value === 'true')
-                      } // Convert to boolean
+                      onValueChange={(value) => field.onChange(value)} // Convert to boolean
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -159,8 +157,12 @@ export default function UserAddForm({ isOpen, onClose }: FormModalProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="true">Admin</SelectItem>
-                        <SelectItem value="false">User</SelectItem>
+                        <SelectItem value="Admin">Admin</SelectItem>
+                        <SelectItem value="Head">Department Head</SelectItem>
+                        <SelectItem value="Inventory">
+                          Inventory Officer
+                        </SelectItem>
+                        <SelectItem value="Crew">Crew</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

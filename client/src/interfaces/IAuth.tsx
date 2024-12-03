@@ -3,7 +3,7 @@ export interface IUserProps {
   _id: string | any;
   userCode: string;
   password: string;
-  isAdmin: boolean;
+  role: string | any;
   project: string;
   firstName: string;
   lastName: string;

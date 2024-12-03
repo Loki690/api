@@ -1,20 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { IUserProps } from "@/interfaces/IAuth";
-import { FormModalProps } from "@/interfaces/IItem";
-import { issuanceListSchema } from "@/schema/issuingFormSchema";
-import { useUserStore } from "@/store/useUserStore";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
-import { z } from "zod";
+import { IUserProps } from '@/interfaces/IAuth';
+import { FormModalProps } from '@/interfaces/IItem';
+import { issuanceListSchema } from '@/schema/issuingFormSchema';
+import { useUserStore } from '@/store/useUserStore';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
+import { z } from 'zod';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
+} from '../ui/dialog';
 import {
   Form,
   FormControl,
@@ -22,19 +22,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/Input";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Button } from "../ui/button";
-import { format } from "date-fns";
+} from '../ui/form';
+import { Input } from '../ui/Input';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Button } from '../ui/button';
+import { format } from 'date-fns';
 import {
   CalendarIcon,
   Check,
   ChevronsUpDown,
   LoaderCircle,
-} from "lucide-react";
-import { Calendar } from "../ui/calendar";
-import { cn } from "@/lib/utils";
+} from 'lucide-react';
+import { Calendar } from '../ui/calendar';
+import { cn } from '@/lib/utils';
 import {
   Command,
   CommandEmpty,
@@ -42,10 +42,10 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "../ui/command";
-import { useIssuanceList } from "@/store/useIssuanceStore";
-import { addIssuedList } from "@/services/IssuanceService";
-import { toast } from "@/hooks/use-toast";
+} from '../ui/command';
+import { useIssuanceList } from '@/store/useIssuanceStore';
+import { addIssuedList } from '@/services/IssuanceService';
+import { toast } from '@/hooks/use-toast';
 
 export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
   const { projectId } = useParams() as { projectId: string };
@@ -59,43 +59,43 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
     resolver: zodResolver(issuanceListSchema),
     defaultValues: {
       dateIssued: new Date(),
-      stockIssuanceNo: "",
-      department: "",
-      projects: "",
-      purpose: "",
-      requisitioner: "",
+      stockIssuanceNo: '',
+      //department: "",
+      projects: '',
+      purpose: '',
+      requisitioner: '',
       members: [],
-      receivedBy: "",
-      releasedBy: "",
-      approvedBy: "",
-      remarks: "",
-      items: [{ item: "", qtyOut: 0 }],
+      receivedBy: '',
+      releasedBy: '',
+      approvedBy: '',
+      remarks: '',
+      items: [{ item: '', qtyOut: 0 }],
     },
   });
 
   function handleReleasedBySelect(itemId: any) {
-    form.setValue("releasedBy", itemId); // Update the form's itemId value
+    form.setValue('releasedBy', itemId); // Update the form's itemId value
   }
   function handleReceivedBySelect(itemId: any) {
-    form.setValue("receivedBy", itemId); // Update the form's itemId value
+    form.setValue('receivedBy', itemId); // Update the form's itemId value
   }
   function handleRequisitionerSelect(itemId: any) {
-    form.setValue("requisitioner", itemId); // Update the form's itemId value
+    form.setValue('requisitioner', itemId); // Update the form's itemId value
   }
   function handleApproverSelect(itemId: any) {
-    form.setValue("approvedBy", itemId); // Update the form's itemId value
+    form.setValue('approvedBy', itemId); // Update the form's itemId value
   }
   function handleMemberSelect(itemId: string) {
-    const currentMembers = form.getValues("members");
+    const currentMembers = form.getValues('members');
     const updatedMembers = currentMembers.includes(itemId)
       ? currentMembers.filter((id: string) => id !== itemId) // Remove if already selected
       : [...currentMembers, itemId]; // Add if not selected
 
-    form.setValue("members", updatedMembers); // Update the form with new array
+    form.setValue('members', updatedMembers); // Update the form with new array
   }
 
   const { data: users = [] } = useQuery<IUserProps[] | any>({
-    queryKey: ["getUsers"],
+    queryKey: ['getUsers'],
     queryFn: () => getUsersByProject(projectId),
   });
 
@@ -103,15 +103,15 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
     issuingItem(values, {
       onSuccess: (data) => {
         addIssuedItem(data, projectId);
-        queryClient.invalidateQueries({ queryKey: ["getIssuedItems"] });
+        queryClient.invalidateQueries({ queryKey: ['getIssuedItems'] });
         toast({
-          title: "SIL Added",
-          description: "SIL successfully added",
+          title: 'SIL Added',
+          description: 'SIL successfully added',
         });
         onClose();
       },
       onError: (err) => {
-        toast({ title: "Error adding", description: `${err}` });
+        toast({ title: 'Error adding', description: `${err}` });
       },
     });
   }
@@ -142,14 +142,14 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
-                              variant={"outline"}
+                              variant={'outline'}
                               className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
+                                'w-full pl-3 text-left font-normal',
+                                !field.value && 'text-muted-foreground'
                               )}
                             >
                               {field.value ? (
-                                format(field.value, "PPP")
+                                format(field.value, 'PPP')
                               ) : (
                                 <span>Pick a date</span>
                               )}
@@ -163,7 +163,7 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                             selected={field.value}
                             onSelect={field.onChange}
                             disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
+                              date > new Date() || date < new Date('1900-01-01')
                             }
                             initialFocus
                           />
@@ -174,7 +174,7 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="department"
                   render={({ field }) => (
@@ -185,7 +185,7 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                       </FormControl>
                     </FormItem>
                   )}
-                ></FormField>
+                ></FormField> */}
                 <FormField
                   control={form.control}
                   name="projects"
@@ -227,8 +227,8 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                               variant="outline"
                               role="combobox"
                               className={cn(
-                                "flex-1 justify-between",
-                                !field.value && "text-muted-foreground"
+                                'flex-1 justify-between',
+                                !field.value && 'text-muted-foreground'
                               )}
                             >
                               {field.value
@@ -236,12 +236,12 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                                     (user: IUserProps) =>
                                       user._id === field.value
                                   )?.firstName +
-                                  " " +
+                                  ' ' +
                                   users.find(
                                     (user: IUserProps) =>
                                       user._id === field.value
                                   )?.lastName
-                                : "Select Requisitioner"}
+                                : 'Select Requisitioner'}
                               <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
@@ -254,20 +254,20 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                               <CommandGroup>
                                 {users.map((user: IUserProps) => (
                                   <CommandItem
-                                    value={user.firstName + " " + user.lastName}
+                                    value={user.firstName + ' ' + user.lastName}
                                     key={user._id}
                                     onSelect={() => {
-                                      form.setValue("requisitioner", user._id); // Set form itemId to user._id
+                                      form.setValue('requisitioner', user._id); // Set form itemId to user._id
                                       handleRequisitionerSelect(user._id); // Update selectedItem state
                                     }}
                                   >
                                     <Check
                                       className={cn(
-                                        "mr-2  w-4",
+                                        'mr-2  w-4',
                                         user._id ===
-                                          form.getValues("requisitioner") // Compare user._id with the value set in form
-                                          ? "opacity-100"
-                                          : "opacity-0"
+                                          form.getValues('requisitioner') // Compare user._id with the value set in form
+                                          ? 'opacity-100'
+                                          : 'opacity-0'
                                       )}
                                     />
                                     {user.firstName} {user.lastName}
@@ -295,8 +295,8 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                               variant="outline"
                               role="combobox"
                               className={cn(
-                                "flex-1 justify-between",
-                                !field.value && "text-muted-foreground"
+                                'flex-1 justify-between',
+                                !field.value && 'text-muted-foreground'
                               )}
                             >
                               {field.value
@@ -304,12 +304,12 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                                     (user: IUserProps) =>
                                       user._id === field.value
                                   )?.firstName +
-                                  " " +
+                                  ' ' +
                                   users.find(
                                     (user: IUserProps) =>
                                       user._id === field.value
                                   )?.lastName
-                                : "Select approver"}
+                                : 'Select approver'}
                               <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
@@ -322,20 +322,20 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                               <CommandGroup>
                                 {users.map((user: IUserProps) => (
                                   <CommandItem
-                                    value={user.firstName + " " + user.lastName}
+                                    value={user.firstName + ' ' + user.lastName}
                                     key={user._id}
                                     onSelect={() => {
-                                      form.setValue("approvedBy", user._id); // Set form itemId to user._id
+                                      form.setValue('approvedBy', user._id); // Set form itemId to user._id
                                       handleApproverSelect(user._id); // Update selectedItem state
                                     }}
                                   >
                                     <Check
                                       className={cn(
-                                        "mr-2  w-4",
+                                        'mr-2  w-4',
                                         user._id ===
-                                          form.getValues("approvedBy") // Compare user._id with the value set in form
-                                          ? "opacity-100"
-                                          : "opacity-0"
+                                          form.getValues('approvedBy') // Compare user._id with the value set in form
+                                          ? 'opacity-100'
+                                          : 'opacity-0'
                                       )}
                                     />
                                     {user.firstName} {user.lastName}
@@ -365,8 +365,8 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                               variant="outline"
                               role="combobox"
                               className={cn(
-                                "flex-1 justify-between",
-                                !field.value.length && "text-muted-foreground"
+                                'flex-1 justify-between',
+                                !field.value.length && 'text-muted-foreground'
                               )}
                             >
                               {field.value.length > 0
@@ -377,8 +377,8 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                                       );
                                       return `${user?.firstName} ${user?.lastName}`;
                                     })
-                                    .join(", ")
-                                : "Select Members"}
+                                    .join(', ')
+                                : 'Select Members'}
                               <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
@@ -391,7 +391,7 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                               <CommandGroup>
                                 {users.map((user: IUserProps) => (
                                   <CommandItem
-                                    value={user.firstName + " " + user.lastName}
+                                    value={user.firstName + ' ' + user.lastName}
                                     key={user._id}
                                     onSelect={() =>
                                       handleMemberSelect(user._id)
@@ -399,12 +399,12 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                                   >
                                     <Check
                                       className={cn(
-                                        "mr-2  w-4",
+                                        'mr-2  w-4',
                                         form
-                                          .getValues("members")
+                                          .getValues('members')
                                           .includes(user._id)
-                                          ? "opacity-100"
-                                          : "opacity-0"
+                                          ? 'opacity-100'
+                                          : 'opacity-0'
                                       )}
                                     />
                                     {user.firstName} {user.lastName}
@@ -434,8 +434,8 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                               variant="outline"
                               role="combobox"
                               className={cn(
-                                "flex-1 justify-between",
-                                !field.value && "text-muted-foreground"
+                                'flex-1 justify-between',
+                                !field.value && 'text-muted-foreground'
                               )}
                             >
                               {field.value
@@ -443,12 +443,12 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                                     (user: IUserProps) =>
                                       user._id === field.value
                                   )?.firstName +
-                                  " " +
+                                  ' ' +
                                   users.find(
                                     (user: IUserProps) =>
                                       user._id === field.value
                                   )?.lastName
-                                : "Select Received By"}
+                                : 'Select Received By'}
                               <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
@@ -461,20 +461,20 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                               <CommandGroup>
                                 {users.map((user: IUserProps) => (
                                   <CommandItem
-                                    value={user.firstName + " " + user.lastName}
+                                    value={user.firstName + ' ' + user.lastName}
                                     key={user._id}
                                     onSelect={() => {
-                                      form.setValue("receivedBy", user._id); // Set form itemId to user._id
+                                      form.setValue('receivedBy', user._id); // Set form itemId to user._id
                                       handleReceivedBySelect(user._id); // Update selectedItem state
                                     }}
                                   >
                                     <Check
                                       className={cn(
-                                        "mr-2  w-4",
+                                        'mr-2  w-4',
                                         user._id ===
-                                          form.getValues("receivedBy") // Compare user._id with the value set in form
-                                          ? "opacity-100"
-                                          : "opacity-0"
+                                          form.getValues('receivedBy') // Compare user._id with the value set in form
+                                          ? 'opacity-100'
+                                          : 'opacity-0'
                                       )}
                                     />
                                     {user.firstName} {user.lastName}
@@ -502,8 +502,8 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                               variant="outline"
                               role="combobox"
                               className={cn(
-                                "flex-1 justify-between",
-                                !field.value && "text-muted-foreground"
+                                'flex-1 justify-between',
+                                !field.value && 'text-muted-foreground'
                               )}
                             >
                               {field.value
@@ -511,12 +511,12 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                                     (user: IUserProps) =>
                                       user._id === field.value
                                   )?.firstName +
-                                  " " +
+                                  ' ' +
                                   users.find(
                                     (user: IUserProps) =>
                                       user._id === field.value
                                   )?.lastName
-                                : "Select Released By"}
+                                : 'Select Released By'}
                               <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
@@ -529,20 +529,20 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                               <CommandGroup>
                                 {users.map((user: IUserProps) => (
                                   <CommandItem
-                                    value={user.firstName + " " + user.lastName}
+                                    value={user.firstName + ' ' + user.lastName}
                                     key={user._id}
                                     onSelect={() => {
-                                      form.setValue("releasedBy", user._id); // Set form itemId to user._id
+                                      form.setValue('releasedBy', user._id); // Set form itemId to user._id
                                       handleReleasedBySelect(user._id); // Update selectedItem state
                                     }}
                                   >
                                     <Check
                                       className={cn(
-                                        "mr-2  w-4",
+                                        'mr-2  w-4',
                                         user._id ===
-                                          form.getValues("releasedBy") // Compare user._id with the value set in form
-                                          ? "opacity-100"
-                                          : "opacity-0"
+                                          form.getValues('releasedBy') // Compare user._id with the value set in form
+                                          ? 'opacity-100'
+                                          : 'opacity-0'
                                       )}
                                     />
                                     {user.firstName} {user.lastName}
@@ -577,7 +577,7 @@ export default function IssuanceAddForm({ isOpen, onClose }: FormModalProps) {
                     aria-hidden="true"
                   />
                 ) : (
-                  "Submit"
+                  'Submit'
                 )}
               </Button>
             </form>

@@ -3,31 +3,47 @@ import bcryptjs from 'bcryptjs';
 import { errorHandler } from '../utils/error.js';
 import jwt from 'jsonwebtoken';
 
-//Controller for signing up
+// Controller for signing up
 export const signup = async (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { userCode, firstName, lastName, password, role } = req.body;
 
+  // Validate required fields
   if (
-    !username ||
-    !email ||
+    !userCode ||
+    !firstName ||
+    !lastName ||
     !password ||
-    username === '' ||
-    email === '' ||
+    userCode === '' ||
+    firstName === '' ||
+    lastName === '' ||
     password === ''
   ) {
     return next(errorHandler(400, 'All fields are required'));
-  } else if (username.length < 5 || username.length > 16) {
-    return next(errorHandler(400, 'Username must be between 5 and 15'));
   } else if (password.length < 7) {
     return next(errorHandler(400, 'Password must be at least 7 characters'));
   }
 
+  // Validate role
+  const validRoles = [
+    'Admin',
+    'Head',
+    'Inventory',
+    'Crew',
+  ];
+  if (role && !validRoles.includes(role)) {
+    return next(errorHandler(400, 'Invalid role specified'));
+  }
+
+  // Hash the password
   const hashedPassword = bcryptjs.hashSync(password, 10);
 
+  // Create new user
   const newUser = new User({
-    username,
-    email,
+    userCode,
+    firstName,
+    lastName,
     password: hashedPassword,
+    role: role || 'Crew', // Default to 'Crew' if no role is provided
   });
 
   try {
@@ -38,11 +54,11 @@ export const signup = async (req, res, next) => {
   }
 };
 
-//Controller for signing in
+// Controller for signing in
 export const signin = async (req, res, next) => {
   const { userCode, password } = req.body;
 
-  // Validate the required fields
+  // Validate required fields
   if (!userCode || !password || userCode === '' || password === '') {
     return next(errorHandler(400, 'All fields are required'));
   }
@@ -62,7 +78,7 @@ export const signin = async (req, res, next) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: validUser._id, isAdmin: validUser.isAdmin },
+      { id: validUser._id, role: validUser.role },
       process.env.JWT_SECRET
     );
 
@@ -77,20 +93,34 @@ export const signin = async (req, res, next) => {
       })
       .json(rest);
   } catch (error) {
-    next(error); // Handle any errors
+    next(error);
   }
 };
 
+// Google Authentication
 export const google = async (req, res, next) => {
-  const { email, name, googlePhotoUrl } = req.body;
+  const { email, name, googlePhotoUrl, role } = req.body;
+
+  // Validate role (optional, defaults to 'Crew')
+  const validRoles = [
+    'Admin',
+    'Head',
+    'Inventory',
+    'Crew',
+  ];
+  if (role && !validRoles.includes(role)) {
+    return next(errorHandler(400, 'Invalid role specified'));
+  }
+
   try {
     const user = await User.findOne({ email });
     if (user) {
+      // User exists, generate a token
       const token = jwt.sign(
-        { id: user._id, isAdmin: user.isAdmin },
+        { id: user._id, role: user.role },
         process.env.JWT_SECRET
       );
-      const { password, ...rest } = user.doc;
+      const { password, ...rest } = user._doc;
       res
         .status(200)
         .cookie('access_token', token, {
@@ -98,23 +128,24 @@ export const google = async (req, res, next) => {
         })
         .json(rest);
     } else {
+      // Create a new user with a generated password
       const generatedPassword =
         Math.random().toString(36).slice(-8) +
         Math.random().toString(36).slice(-8);
-
       const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
 
       const newUser = new User({
-        username:
-          name.toLowerCase().split(' ').join('') +
-          Math.random().toString(9).slice(-4),
+        userCode: name.toLowerCase().split(' ').join('') + Math.random().toString(9).slice(-4),
+        firstName: name.split(' ')[0],
+        lastName: name.split(' ')[1] || '',
         email,
         password: hashedPassword,
         profilePicture: googlePhotoUrl,
+        role: role || 'Crew', // Default to 'Crew' if no role is provided
       });
       await newUser.save();
       const token = jwt.sign(
-        { id: newUser._id, isAdmin: newUser.isAdmin },
+        { id: newUser._id, role: newUser.role },
         process.env.JWT_SECRET
       );
       const { password, ...rest } = newUser._doc;

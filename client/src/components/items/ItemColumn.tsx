@@ -18,9 +18,7 @@ import { Items } from "@/types/ItemTypes";
 export const itemColumns: ColumnDef<Items>[] = [
   {
     accessorKey: "itemCode",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Item Code" />
-    ),
+    header: "Item Code",
     cell: ({ row }) => <div>{row.getValue("itemCode")}</div>,
   },
   {
@@ -60,8 +58,11 @@ export const itemColumns: ColumnDef<Items>[] = [
   },
   {
     accessorKey: "project",
-    header: "Project",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Project" />
+    ),
     cell: ({ row }) => <div>{row.original.project?.name}</div>,
+    filterFn: "equals",
   },
   {
     id: "actions",

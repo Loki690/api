@@ -65,7 +65,7 @@ export default function IssuingUpdateSheet({
     defaultValues: {
       dateIssued: new Date(),
       stockIssuanceNo: '',
-      department: '',
+      //department: '',
       projects: '',
       purpose: '',
       requisitioner: '',
@@ -84,7 +84,7 @@ export default function IssuingUpdateSheet({
       reset({
         dateIssued: issuance?.dateIssued || null,
         stockIssuanceNo: issuance?.stockIssuanceNo || '',
-        department: issuance?.department || '',
+        //department: issuance?.department || '',
         projects: issuance?.projects || '',
         purpose: issuance?.purpose || '',
         requisitioner: issuance?.requisitioner?._id || '',
@@ -202,7 +202,7 @@ export default function IssuingUpdateSheet({
                 />
               </div>
               <div className="grid grid-cols-1 gap-2">
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="department"
                   render={({ field }) => (
@@ -213,7 +213,7 @@ export default function IssuingUpdateSheet({
                       </FormControl>
                     </FormItem>
                   )}
-                ></FormField>
+                ></FormField> */}
                 <FormField
                   control={form.control}
                   name="projects"

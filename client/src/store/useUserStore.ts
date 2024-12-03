@@ -48,6 +48,14 @@ export const useUserStore = create<IUserListStoreProps>((set) => ({
     })),
 
   setUser: (users: IUserProps[]) => set({ users }),
+
+  updateUserProject: (userId: string, newProject: string) => {
+    set((state) => ({
+      users: state.users.map((user) =>
+        user.id === userId ? { ...user, role: newProject } : user
+      ),
+    }));
+  },
 }));
 
 export const useUsers = (projectId: string) => {

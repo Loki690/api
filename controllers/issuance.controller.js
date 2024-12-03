@@ -1,8 +1,8 @@
-import StockIssuanceList from "../models/issuance.model.js";
-import Item from "../models/item.model.js";
-import createHistory from "../middlewares/item.middleware.js";
-import History from "../models/history.model.js";
-import generateStockIssuanceNo from "../middlewares/issuance.middleware.js";
+import StockIssuanceList from '../models/issuance.model.js';
+import Item from '../models/item.model.js';
+import createHistory from '../middlewares/item.middleware.js';
+import History from '../models/history.model.js';
+import generateStockIssuanceNo from '../middlewares/issuance.middleware.js';
 
 // Controller for creating a Stock Issuance
 export const createStockIssuance = async (req, res) => {
@@ -10,7 +10,7 @@ export const createStockIssuance = async (req, res) => {
     const { projectId } = req.params;
     const {
       dateIssued,
-      department,
+      //department,
       projects,
       purpose,
       requisitioner,
@@ -27,7 +27,7 @@ export const createStockIssuance = async (req, res) => {
     // Create the stock issuance record without items
     const newStockIssuance = new StockIssuanceList({
       dateIssued,
-      department,
+      //department,
       projects,
       purpose,
       requisitioner,
@@ -74,7 +74,7 @@ export const createStockIssuance = async (req, res) => {
       // Create history for the item issuance
       await createHistory(
         foundItem._id,
-        "issued",
+        'issued',
         foundItem,
         stockIssuanceNo,
         totalQtyIssue
@@ -87,7 +87,7 @@ export const createStockIssuance = async (req, res) => {
     res.status(201).json(savedIssuance);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -99,7 +99,7 @@ export const deleteItemFromStockIssuance = async (req, res) => {
     // Find the Stock Issuance by ID
     const stockIssuance = await StockIssuanceList.findById(issuanceId);
     if (!stockIssuance) {
-      return res.status(404).json({ message: "Stock Issuance not found" });
+      return res.status(404).json({ message: 'Stock Issuance not found' });
     }
 
     // Find the index of the item to be deleted in the stock issuance's items array
@@ -109,7 +109,7 @@ export const deleteItemFromStockIssuance = async (req, res) => {
     if (itemIndex === -1) {
       return res
         .status(404)
-        .json({ message: "Item not found in the stock issuance" });
+        .json({ message: 'Item not found in the stock issuance' });
     }
 
     // Get the item details before removing it
@@ -126,18 +126,18 @@ export const deleteItemFromStockIssuance = async (req, res) => {
     stockIssuance.items.splice(itemIndex, 1);
 
     // Delete the history associated with the item
-    await History.deleteMany({ item: itemToRemove.item, action: "issued" });
+    await History.deleteMany({ item: itemToRemove.item, action: 'issued' });
 
     // Save the updated Stock Issuance
     const updatedIssuance = await stockIssuance.save();
 
     res.status(200).json({
-      message: "Item and its history deleted successfully",
+      message: 'Item and its history deleted successfully',
       updatedIssuance, // Optionally return the updated issuance
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -145,17 +145,17 @@ export const getAllStockIssuancesSelection = async (req, res) => {
   try {
     const { projectId } = req.params;
     const stockIssuance = await StockIssuanceList.find({ project: projectId })
-      .populate("requisitioner", "firstName lastName")
-      .populate("department", "departmentName")
-      .populate("projects", "subprojectName")
-      .populate("members", "firstName lastName")
-      .populate("receivedBy", "firstName lastName")
-      .populate("releasedBy", "firstName lastName")
-      .populate("approvedBy", "firstName lastName")
+      .populate('requisitioner', 'firstName lastName')
+      //.populate("department", "departmentName")
+      .populate('projects', 'subprojectName')
+      .populate('members', 'firstName lastName')
+      .populate('receivedBy', 'firstName lastName')
+      .populate('releasedBy', 'firstName lastName')
+      .populate('approvedBy', 'firstName lastName')
       .populate({
-        path: "items.item", // Populate the 'item' field within 'items'
-        model: "Item", // Specify the model to populate from
-        select: "itemCode itemDescription unit remarks", // Specify the fields to include
+        path: 'items.item', // Populate the 'item' field within 'items'
+        model: 'Item', // Specify the model to populate from
+        select: 'itemCode itemDescription unit remarks', // Specify the fields to include
       });
     res.status(200).json(stockIssuance);
   } catch (error) {
@@ -165,45 +165,45 @@ export const getAllStockIssuancesSelection = async (req, res) => {
 // Controller for getting all stock issuances by project ID
 export const getAllStockIssuances = async (req, res, next) => {
   try {
-    const { isAdmin } = req.user; // Extract user role from token
+    const { role } = req.user; // Extract user role from token
     const { projectId } = req.params; // Optional: For non-admin filtering by project
 
     let stockIssuances;
 
-    if (isAdmin) {
+    if (role == 'Admin') {
       // Admin can see all stock issuances
       stockIssuances = await StockIssuanceList.find()
-        .populate("requisitioner", "firstName lastName")
-        .populate("department", "departmentName")
-        .populate("projects", "subprojectName")
-        .populate("members", "firstName lastName")
-        .populate("receivedBy", "firstName lastName")
-        .populate("releasedBy", "firstName lastName")
-        .populate("approvedBy", "firstName lastName")
+        .populate('requisitioner', 'firstName lastName')
+        //.populate("department", "departmentName")
+        .populate('projects', 'subprojectName')
+        .populate('members', 'firstName lastName')
+        .populate('receivedBy', 'firstName lastName')
+        .populate('releasedBy', 'firstName lastName')
+        .populate('approvedBy', 'firstName lastName')
         .populate({
-          path: "items.item", // Populate the 'item' field within 'items'
-          model: "Item", // Specify the model to populate from
-          select: "itemCode itemDescription unit remarks", // Specify the fields to include
+          path: 'items.item', // Populate the 'item' field within 'items'
+          model: 'Item', // Specify the model to populate from
+          select: 'itemCode itemDescription unit remarks', // Specify the fields to include
         });
     } else {
       // Non-admin can only see stock issuances for their assigned project
       if (!projectId) {
         return next(
-          errorHandler(400, "Project ID is required for non-admin users")
+          errorHandler(400, 'Project ID is required for non-admin users')
         );
       }
       stockIssuances = await StockIssuanceList.find({ project: projectId })
-        .populate("requisitioner", "firstName lastName")
-        .populate("department", "departmentName")
-        .populate("projects", "subprojectName")
-        .populate("members", "firstName lastName")
-        .populate("receivedBy", "firstName lastName")
-        .populate("releasedBy", "firstName lastName")
-        .populate("approvedBy", "firstName lastName")
+        .populate('requisitioner', 'firstName lastName')
+        //.populate("department", "departmentName")
+        .populate('projects', 'subprojectName')
+        .populate('members', 'firstName lastName')
+        .populate('receivedBy', 'firstName lastName')
+        .populate('releasedBy', 'firstName lastName')
+        .populate('approvedBy', 'firstName lastName')
         .populate({
-          path: "items.item", // Populate the 'item' field within 'items'
-          model: "Item", // Specify the model to populate from
-          select: "itemCode itemDescription unit remarks", // Specify the fields to include
+          path: 'items.item', // Populate the 'item' field within 'items'
+          model: 'Item', // Specify the model to populate from
+          select: 'itemCode itemDescription unit remarks', // Specify the fields to include
         });
     }
 
@@ -222,24 +222,24 @@ export const getStockIssuanceById = async (req, res) => {
       _id: issuanceId,
       project: projectId,
     })
-      .populate("requisitioner")
-      .populate("members")
-      .populate("receivedBy")
-      .populate("releasedBy")
+      .populate('requisitioner')
+      .populate('members')
+      .populate('receivedBy')
+      .populate('releasedBy')
       .populate({
-        path: "items.item", // Populate the 'item' field within 'items'
-        model: "Item", // Specify the model to populate from
-        select: "itemCode itemDescription unit remarks", // Specify the fields to include
+        path: 'items.item', // Populate the 'item' field within 'items'
+        model: 'Item', // Specify the model to populate from
+        select: 'itemCode itemDescription unit remarks', // Specify the fields to include
       });
 
     if (!stockIssuance) {
-      return res.status(404).json({ message: "Stock Issuance not found" });
+      return res.status(404).json({ message: 'Stock Issuance not found' });
     }
 
     res.status(200).json(stockIssuance);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -258,7 +258,7 @@ export const getLastIssuance = async (req, res) => {
     res.status(200).json({ stockIssuanceNo: lastIssuance.stockIssuanceNo });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -272,13 +272,13 @@ export const deleteStockIssuanceById = async (req, res) => {
     });
 
     if (!stockIssuance) {
-      return res.status(404).json({ message: "Stock Issuance not found" });
+      return res.status(404).json({ message: 'Stock Issuance not found' });
     }
 
-    res.status(200).json({ message: "Stock Issuance deleted successfully" });
+    res.status(200).json({ message: 'Stock Issuance deleted successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -286,7 +286,7 @@ export const updateStockIssuance = async (req, res) => {
   const { projectId, issuanceId } = req.params; // Get projectId and issuanceId from route parameters
   const {
     dateIssued,
-    department,
+    //department,
     projects,
     purpose,
     requisitioner,
@@ -306,7 +306,7 @@ export const updateStockIssuance = async (req, res) => {
     });
 
     if (!stockIssuance) {
-      return res.status(404).json({ message: "Stock Issuance not found" });
+      return res.status(404).json({ message: 'Stock Issuance not found' });
     }
 
     // Loop through items to validate, update, and track changes
@@ -354,7 +354,7 @@ export const updateStockIssuance = async (req, res) => {
       // Create history for the item
       await createHistory(
         foundItem._id,
-        "issued",
+        'issued',
         foundItem,
         stockIssuance.stockIssuanceNo,
         qtyDifference
@@ -363,7 +363,7 @@ export const updateStockIssuance = async (req, res) => {
 
     // Update stock issuance details
     stockIssuance.dateIssued = dateIssued;
-    stockIssuance.department = department;
+    //stockIssuance.department = department;
     stockIssuance.projects = projects;
     stockIssuance.purpose = purpose;
     stockIssuance.requisitioner = requisitioner;
@@ -379,7 +379,7 @@ export const updateStockIssuance = async (req, res) => {
     res.status(200).json(updatedIssuance);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -397,7 +397,7 @@ export const createStockIssuanceNo = async (req, res) => {
     res.status(500).json({
       success: false,
       statusCode: 500,
-      message: "Server error",
+      message: 'Server error',
     });
   }
 };
@@ -407,6 +407,6 @@ export const getAllIssuedItemsForAdmin = async (_, res) => {
     const issuedItems = await StockIssuanceList.find().populate();
     res.status(200).json(issuedItems);
   } catch (error) {
-    res.status(500).json({ message: "Failed to retreive items" });
+    res.status(500).json({ message: 'Failed to retreive items' });
   }
 };

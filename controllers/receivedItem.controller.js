@@ -133,12 +133,12 @@ export const getAllReceivedItemsSelection = async (req, res) => {
 // GET: Get all received items for a project
 export const getAllReceivedItems = async (req, res, next) => {
   try {
-    const { isAdmin } = req.user; // Extract user role from token
+    const { role } = req.user; // Extract user role from token
     const { projectId } = req.params; // For non-admin filtering by project
 
     let receivedItems;
 
-    if (isAdmin) {
+    if (role == "Admin") {
       // Admin can see all received items
       receivedItems = await ReceivedItem.find()
         .populate("items.item", "itemCode itemDescription unit") // Populate item details

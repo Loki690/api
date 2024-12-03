@@ -21,7 +21,7 @@ export interface ItemReceived {
 
 export interface ItemLogEntry {
   _id: string;
-  action: "created" | "received" | "issued";
+  action: 'created' | 'received' | 'issued';
   itemId?: {
     qtyIn: number;
     stockOnHand: number | string;
@@ -43,12 +43,13 @@ export interface IItemListStoreProps {
   itemsPerPage: number;
   searchTerm: string;
   totalPages: number;
-  getAllItems: (
-    projectId: string | undefined,
-    search: string,
-    page: number,
-    limit: number
-  ) => void;
+  getAllItems: (projectId: string | undefined) => void;
+  // getAllItems: (
+  //   projectId: string | undefined,
+  //   search: string,
+  //   page: number,
+  //   limit: number
+  // ) => void;
   getItemById: (itemId: string) => void;
   setCurrentPage: (page: number) => void;
   setItemsPerPage: (limit: number) => void;

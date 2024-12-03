@@ -180,136 +180,150 @@ export default function ReceivingUpdateForm({
                   <FormField
                     control={form.control}
                     name="requistioner"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-1 items-center">
-                        <FormLabel className="mr-2">:</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  'w-full md:w-1/2 justify-between',
-                                  !field.value && 'text-muted-foreground'
-                                )}
-                              >
-                                {field.value
-                                  ? users.find(
-                                      (user: IUserProps) =>
-                                        user._id === field.value
-                                    )?.firstName +
-                                    ' ' +
-                                    users.find(
-                                      (user: IUserProps) =>
-                                        user._id === field.value
-                                    )?.lastName
-                                  : 'Select Requisitioner'}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[320px] p-0">
-                            <Command>
-                              <CommandInput placeholder="Search User" />
-                              <CommandList>
-                                <CommandEmpty>No User found.</CommandEmpty>
-                                <CommandGroup>
-                                  {users.map((user: IUserProps) => (
-                                    <CommandItem
-                                      value={user.firstName}
-                                      key={user._id}
-                                      onSelect={() => {
-                                        form.setValue('requistioner', user._id);
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          'mr-2 h-4 w-4',
+                    render={({ field }) => {
+                      const filteredUser = users.filter(
+                        (user: IUserProps) => user.role === 'Crew'
+                      );
+                      return (
+                        <FormItem className="flex flex-1 items-center">
+                          <FormLabel className="mr-2">:</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    'w-full md:w-1/2 justify-between',
+                                    !field.value && 'text-muted-foreground'
+                                  )}
+                                >
+                                  {field.value
+                                    ? filteredUser.find(
+                                        (user: IUserProps) =>
                                           user._id === field.value
-                                            ? 'opacity-100'
-                                            : 'opacity-0'
-                                        )}
-                                      />
-                                      {user.firstName} {user.lastName}
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                                      )?.firstName +
+                                      ' ' +
+                                      filteredUser.find(
+                                        (user: IUserProps) =>
+                                          user._id === field.value
+                                      )?.lastName
+                                    : 'Select Requisitioner'}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[320px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Search User" />
+                                <CommandList>
+                                  <CommandEmpty>No User found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {filteredUser.map((user: IUserProps) => (
+                                      <CommandItem
+                                        value={user.firstName}
+                                        key={user._id}
+                                        onSelect={() => {
+                                          form.setValue(
+                                            'requistioner',
+                                            user._id
+                                          );
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            'mr-2 h-4 w-4',
+                                            user._id === field.value
+                                              ? 'opacity-100'
+                                              : 'opacity-0'
+                                          )}
+                                        />
+                                        {user.firstName} {user.lastName}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
                 </div>
                 <div className="">
                   <FormField
                     control={form.control}
                     name="receivedBy"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-1 items-center">
-                        <FormLabel className="mr-2">:</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  'w-full md:w-1/2 justify-between',
-                                  !field.value && 'text-muted-foreground'
-                                )}
-                              >
-                                {field.value
-                                  ? users.find(
-                                      (user: IUserProps) =>
-                                        user._id === field.value
-                                    )?.firstName +
-                                    ' ' +
-                                    users.find(
-                                      (user: IUserProps) =>
-                                        user._id === field.value
-                                    )?.lastName
-                                  : 'Select a user'}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[320px] p-0">
-                            <Command>
-                              <CommandInput placeholder="Search User" />
-                              <CommandList>
-                                <CommandEmpty>No User found.</CommandEmpty>
-                                <CommandGroup>
-                                  {users.map((user: IUserProps) => (
-                                    <CommandItem
-                                      value={user.firstName}
-                                      key={user._id}
-                                      onSelect={() => {
-                                        form.setValue('receivedBy', user._id);
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          'mr-2 h-4 w-4',
+                    render={({ field }) => {
+                      const filteredUser = users.filter(
+                        (user: IUserProps) => user.role === 'Inventory'
+                      );
+
+                      return (
+                        <FormItem className="flex flex-1 items-center">
+                          <FormLabel className="mr-2">:</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    'w-full md:w-1/2 justify-between',
+                                    !field.value && 'text-muted-foreground'
+                                  )}
+                                >
+                                  {field.value
+                                    ? filteredUser.find(
+                                        (user: IUserProps) =>
                                           user._id === field.value
-                                            ? 'opacity-100'
-                                            : 'opacity-0'
-                                        )}
-                                      />
-                                      {user.firstName} {user.lastName}
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                                      )?.firstName +
+                                      ' ' +
+                                      filteredUser.find(
+                                        (user: IUserProps) =>
+                                          user._id === field.value
+                                      )?.lastName
+                                    : 'Select a user'}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[320px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Search User" />
+                                <CommandList>
+                                  <CommandEmpty>No User found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {filteredUser.map((user: IUserProps) => (
+                                      <CommandItem
+                                        value={user.firstName}
+                                        key={user._id}
+                                        onSelect={() => {
+                                          form.setValue('receivedBy', user._id);
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            'mr-2 h-4 w-4',
+                                            user._id === field.value
+                                              ? 'opacity-100'
+                                              : 'opacity-0'
+                                          )}
+                                        />
+                                        {user.firstName} {user.lastName}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
                 </div>
                 <div className="">

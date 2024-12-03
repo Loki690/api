@@ -1,54 +1,41 @@
 import { useItemStore } from "@/store/userItemStore";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { DataTableItem } from "../DataTableItem";
 import { itemColumns } from "./ItemColumn";
 import ItemAdd from "./ItemAdd";
 import { DataTableSkeleton } from "../DataTableSkeleton";
 import { Input } from "../ui/Input";
-import { debounce } from "@/utility/debounce";
+import { IItemProps } from "@/interfaces/IItem";
+import { DataTableItem } from "../DataTableItem";
 import { ItemPagination } from "./ItemPagination";
 
+const ITEMS_PER_PAGE = 10;
 export default function ItemDataTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const { projectId } = useParams() as { projectId: string };
-  const {
-    getAllItems,
-    setCurrentPage,
-    currentPage,
-    itemsPerPage,
-    setItemsPerPage,
-  } = useItemStore();
+  const { getAllItems, currentPage, setCurrentPage } = useItemStore();
   const { data: itemsData = [], isPending } = useQuery<any>({
-    queryKey: ["getItems", searchTerm, currentPage, itemsPerPage],
-    queryFn: () =>
-      getAllItems(projectId, searchTerm, currentPage, itemsPerPage),
+    queryKey: ["getAllItems"],
+    queryFn: () => getAllItems(projectId),
   });
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  const filteredItems = itemsData?.filter(
+    (item: IItemProps) =>
+      item.itemDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.itemCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.project.name.toLowerCase().includes(searchTerm.toLowerCase)
+  );
 
-  const handleLimitChange = (limit: number) => {
-    setItemsPerPage(limit);
-    setCurrentPage(1);
-  };
-
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
   useEffect(() => {
-    setCurrentPage(currentPage);
-  }, [currentPage, setCurrentPage]);
-  const [localSearch, setLocalSearch] = useState(searchTerm);
-
-  useEffect(() => {
-    const debouncedSearch = debounce(() => {
-      setSearchTerm(localSearch); // Update store search term
-      setCurrentPage(1); // Reset to first page on new search
-    }, 300);
-
-    debouncedSearch();
-    return () => debouncedSearch.cancel();
-  }, [localSearch, setSearchTerm, setCurrentPage]);
+    if (searchTerm) {
+      setCurrentPage(1);
+    }
+  }, [searchTerm, setCurrentPage]);
 
   return (
     <div>
@@ -59,17 +46,17 @@ export default function ItemDataTable() {
           <div className="flex justify-between mb-2">
             <Input
               placeholder="Search Item"
-              value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-sm"
             />
             <ItemAdd />
           </div>
-          <DataTableItem columns={itemColumns} data={itemsData?.items || []} />
+          <DataTableItem columns={itemColumns} data={paginatedItems || []} />
           <ItemPagination
-            totalItems={itemsData?.totalItems || 0}
-            onPageChange={handlePageChange}
-            onLimitChange={handleLimitChange}
+            totalItems={filteredItems.length}
+            itemsPerPage={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
           />
         </div>
       )}

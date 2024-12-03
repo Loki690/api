@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const UnAuthorized = () => {
   const navigate = useNavigate();
@@ -7,8 +7,10 @@ const UnAuthorized = () => {
   const handleGoBack = () => {
     if (window.history.length > 1) {
       navigate(`/`); // Go back to previous page
+      localStorage.clear();
     } else {
-      navigate("/"); // Redirect to a default page if no previous page
+      navigate('/'); // Redirect to a default page if no previous page
+      localStorage.clear();
     }
   };
 

@@ -2,37 +2,37 @@ import {
   ArchiveBoxIcon,
   PresentationChartLineIcon,
   UserGroupIcon,
-} from '@heroicons/react/20/solid';
-import { GearIcon } from '@radix-ui/react-icons';
-import { HandHelping, SquareLibrary } from 'lucide-react';
+} from "@heroicons/react/20/solid";
+import { GearIcon } from "@radix-ui/react-icons";
+import { HandHelping, SquareLibrary } from "lucide-react";
 
 export const navigation = [
   {
-    id: '0',
-    title: 'Home',
-    url: '/',
+    id: "0",
+    title: "Home",
+    url: "/",
   },
   {
-    id: '1',
-    title: 'Abouts',
-    url: '/abouts',
+    id: "1",
+    title: "Abouts",
+    url: "/abouts",
   },
   {
-    id: '2',
-    title: 'Features',
-    url: '/feature',
+    id: "2",
+    title: "Features",
+    url: "/feature",
   },
 
   {
-    id: '3',
-    title: 'Github',
-    url: '/github',
+    id: "3",
+    title: "Github",
+    url: "/github",
     onlyMobile: true,
   },
   {
-    id: '4',
-    title: 'Projects',
-    url: '/projects',
+    id: "4",
+    title: "Projects",
+    url: "/projects",
     onlyMobile: true,
   },
 ];
@@ -45,58 +45,58 @@ export const sidenav = [
   //   path: "/dashboard/:projectId",
   // },
   {
-    id: '6',
+    id: "6",
     icons: <ArchiveBoxIcon className="size-4" />,
-    title: 'Items',
-    path: '/admin/items',
+    title: "Item-List",
+    path: "/admin/items/:projectId",
   },
   {
-    id: '7',
+    id: "7",
     icons: <ArchiveBoxIcon className="size-4" />,
-    title: 'Items',
-    path: '/items/:projectId',
+    title: "Items",
+    path: "/items/:projectId",
   },
   {
-    id: '8',
+    id: "8",
     icons: <PresentationChartLineIcon className="size-4" />,
-    title: 'Receiving',
-    path: '/receiving/:projectId',
+    title: "Receiving",
+    path: "/receiving/:projectId",
   },
   {
-    id: '9',
+    id: "9",
     icons: <HandHelping className="size-4" />,
-    title: 'Issuing',
-    path: '/issuing/:projectId',
+    title: "Issuing",
+    path: "/issuing/:projectId",
   },
   {
-    id: '10',
+    id: "10",
     icons: <UserGroupIcon className="size-4" />,
-    title: 'Users',
-    path: '/users',
+    title: "Users",
+    path: "/users",
   },
   {
-    id: '11',
+    id: "11",
     icons: <SquareLibrary className="size-4" />,
-    title: 'Projects',
-    path: '/projects',
+    title: "Projects",
+    path: "/projects",
   },
   {
-    id: '12',
+    id: "12",
     icons: <GearIcon className="size-4" />,
-    title: 'Options',
-    path: '/options/:projectId',
+    title: "Options",
+    path: "/options/:projectId",
   },
 ];
 
 export const dropdownlist = [
   {
-    id: '10',
-    title: 'Dasboard',
-    tab: 'userdash',
+    id: "10",
+    title: "Dasboard",
+    tab: "userdash",
   },
   {
-    id: '11',
-    title: 'Profile',
-    tab: 'profile',
+    id: "11",
+    title: "Profile",
+    tab: "profile",
   },
 ];

@@ -1,9 +1,9 @@
-import Item from "../models/item.model.js";
-import createHistory from "../middlewares/item.middleware.js";
-import * as XLSX from "xlsx/xlsx.mjs";
+import Item from '../models/item.model.js';
+import createHistory from '../middlewares/item.middleware.js';
+import * as XLSX from 'xlsx/xlsx.mjs';
 
 /* load 'fs' for readFile and writeFile support */
-import * as fs from "fs";
+import * as fs from 'fs';
 XLSX.set_fs(fs);
 
 export const createItem = async (req, res) => {
@@ -19,15 +19,15 @@ export const createItem = async (req, res) => {
 export const createFakeItem = async (req, res) => {
   try {
     const fakeItem = {
-      itemCode: "Fake item 1",
-      itemDescription: "This is a fake item for testing",
-      unit: "pcs",
+      itemCode: 'Fake item 1',
+      itemDescription: 'This is a fake item for testing',
+      unit: 'pcs',
       qtyIn: 100,
       qtyOut: 10,
       stockOnHand: 90,
-      toolLocator: "A1B2C3",
-      remarks: "No remarks",
-      project: (req.body.project = "66ffdb2a37391abba424fe6b"),
+      toolLocator: 'A1B2C3',
+      remarks: 'No remarks',
+      project: (req.body.project = '66ffdb2a37391abba424fe6b'),
     };
     const item = new Item(fakeItem);
     await item.save();
@@ -43,7 +43,7 @@ export const createItemOnProject = async (req, res) => {
     const itemData = { ...req.body, project: id };
     const item = new Item(itemData);
     await item.save();
-    await createHistory(item, "created", itemData);
+    await createHistory(item, 'created', itemData);
     res.status(201).json(item);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -53,7 +53,7 @@ export const createItemOnProject = async (req, res) => {
 export const getAllItemsSelection = async (req, res) => {
   try {
     const { id } = req.params;
-    const items = await Item.find({ project: id }).populate("project", "name");
+    const items = await Item.find({ project: id }).populate('project', 'name');
     res.status(200).json(items);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -85,75 +85,101 @@ export const getAllItemsSelection = async (req, res) => {
 //     next(error); // Pass error to global error handler
 //   }
 // };
-
 export const getAllItems = async (req, res, next) => {
   try {
-    const { isAdmin } = req.user; // Extract user role from token
-    const { id } = req.params; // For non-admin filtering by project
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
-    const search = req.query.search || "";
-
-    const skip = (page - 1) * limit;
-
-    const searchFilter = search
-      ? {
-          $or: [
-            { itemCode: { $regex: search, $options: "i" } },
-            { itemDescription: { $regex: search, $options: "i" } },
-          ],
-        }
-      : {};
+    const { role } = req.user; // Extract user role from token
+    const { id } = req.params; // Optional: For non-admin filtering by project
 
     let items;
-    let totalItems;
 
-    if (isAdmin) {
+    if (role == 'Admin' || role == 'Head') {
       // Admin can see all items
-      items = await Item.find(searchFilter)
-        .skip(skip)
-        .limit(limit)
-        .populate("project", "name");
-
-      totalItems = await Item.countDocuments(searchFilter);
+      items = await Item.find().populate('project', 'name');
     } else {
       // Non-admin can only see items for their assigned project
       if (!id) {
         return next(
-          errorHandler(400, "Project ID is required for non-admin users")
+          errorHandler(400, 'Project ID is required for non-admin users')
         );
       }
-
-      const projectFilter = { project: id };
-
-      // Combine searchFilter with projectFilter
-      const combinedFilter = { ...searchFilter, ...projectFilter };
-
-      items = await Item.find(combinedFilter)
-        .skip(skip)
-        .limit(limit)
-        .populate("project", "name");
-
-      totalItems = await Item.countDocuments(combinedFilter);
+      items = await Item.find({ project: id }).populate('project', 'name');
     }
 
-    res.status(200).json({
-      items,
-      currentPage: page,
-      totalPages: Math.ceil(totalItems / limit),
-      totalItems,
-    });
+    res.status(200).json(items);
   } catch (error) {
     next(error); // Pass error to global error handler
   }
 };
+//uncomment if want to use the server side pagination
+// export const getAllItems = async (req, res, next) => {
+//   try {
+//     const { isAdmin } = req.user; // Extract user role from token
+//     const { id } = req.params; // For non-admin filtering by project
+//     const page = parseInt(req.query.page, 10) || 1;
+//     const limit = parseInt(req.query.limit, 10) || 10;
+//     const search = req.query.search || "";
+
+//     const skip = (page - 1) * limit;
+
+//     const searchFilter = search
+//       ? {
+//           $or: [
+//             { itemCode: { $regex: search, $options: "i" } },
+//             { itemDescription: { $regex: search, $options: "i" } },
+//             { project: { $regex: search, $options: "i" } },
+//           ],
+//         }
+//       : {};
+
+//     let items;
+//     let totalItems;
+
+//     if (isAdmin) {
+//       // Admin can see all items
+//       items = await Item.find(searchFilter)
+//         .skip(skip)
+//         .limit(limit)
+//         .populate("project", "name");
+
+//       totalItems = await Item.countDocuments(searchFilter);
+//     } else {
+//       // Non-admin can only see items for their assigned project
+//       if (!id) {
+//         return next(
+//           errorHandler(400, "Project ID is required for non-admin users")
+//         );
+//       }
+
+//       const projectFilter = { project: id };
+
+//       // Combine searchFilter with projectFilter
+//       const combinedFilter = { ...searchFilter, ...projectFilter };
+
+//       items = await Item.find(combinedFilter)
+//         .skip(skip)
+//         .limit(limit)
+//         .populate("project", "name");
+
+//       totalItems = await Item.countDocuments(combinedFilter);
+//     }
+
+//     res.status(200).json({
+//       items,
+//       currentPage: page,
+//       totalPages: Math.ceil(totalItems / limit),
+//       totalItems,
+//     });
+//   } catch (error) {
+//     next(error); // Pass error to global error handler
+//   }
+// };
 
 export const getItemById = async (req, res) => {
   try {
     const { itemId } = req.params;
     const item = await Item.findOne({ _id: itemId });
     if (!item) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(404).json({ message: 'Item not found' });
     }
     res.status(200).json(item);
   } catch (error) {
@@ -169,10 +195,10 @@ export const updateItemById = async (req, res) => {
       { new: true, runValidators: true }
     );
     if (!item) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(404).json({ message: 'Item not found' });
     }
     res.status(200).json(item);
-    await createHistory(item, "updated", req.body);
+    await createHistory(item, 'updated', req.body);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -190,18 +216,18 @@ export const deleteItemById = async (req, res) => {
 
     // Check if the item was found
     if (!item) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(404).json({ message: 'Item not found' });
     }
 
     // Respond with success message
-    res.status(200).json({ message: "Item deleted successfully" });
-    await createHistory(item, "deleted", req.body);
+    res.status(200).json({ message: 'Item deleted successfully' });
+    await createHistory(item, 'deleted', req.body);
   } catch (error) {
     // Handle any errors that occur
     console.error(error);
     res
       .status(500)
-      .json({ message: "An error occurred while deleting the item" });
+      .json({ message: 'An error occurred while deleting the item' });
   }
 };
 
@@ -209,13 +235,13 @@ export const importExcel = async (req, res) => {
   try {
     const { id } = req.params; // Extract project ID from route parameters
     if (!id) {
-      return res.status(400).json({ message: "Project ID is required" });
+      return res.status(400).json({ message: 'Project ID is required' });
     }
 
     // Access the uploaded file
     const file = req.file;
     if (!file) {
-      return res.status(400).json({ message: "No file uploaded" });
+      return res.status(400).json({ message: 'No file uploaded' });
     }
 
     // Read the Excel file
@@ -231,8 +257,8 @@ export const importExcel = async (req, res) => {
       qtyIn: data.qtyIn || 0,
       qtyOut: data.qtyOut || 0,
       stockOnHand: data.stockOnHand || 0,
-      toolLocator: data.toolLocator || "",
-      remarks: data.remarks || "",
+      toolLocator: data.toolLocator || '',
+      remarks: data.remarks || '',
       project: id, // Reference the project ID from the route parameters
     }));
 
@@ -240,24 +266,24 @@ export const importExcel = async (req, res) => {
     const savedItems = await Item.insertMany(items);
     res
       .status(201)
-      .json({ message: "Items imported successfully", savedItems });
+      .json({ message: 'Items imported successfully', savedItems });
   } catch (error) {
     console.error(error);
     res
       .status(500)
-      .json({ message: "Failed to import items", error: error.message });
+      .json({ message: 'Failed to import items', error: error.message });
   }
 };
 
 export const getAllItemsForAdmin = async (_, res) => {
   try {
     // Fetch all items without filtering by project
-    const items = await Item.find().populate("project", "name"); // Populating project details if needed
-    console.log("Items fetched:", items); // Debugging line
+    const items = await Item.find().populate('project', 'name'); // Populating project details if needed
+    console.log('Items fetched:', items); // Debugging line
     res.status(200).json(items);
   } catch (error) {
-    console.error("Error in getAllItemsForAdmin:", error.message);
-    res.status(500).json({ message: "Failed to retrieve items" });
+    console.error('Error in getAllItemsForAdmin:', error.message);
+    res.status(500).json({ message: 'Failed to retrieve items' });
   }
 };
 
@@ -266,7 +292,7 @@ export const getAllItemsAdmin = async (req, res) => {
     // Extract page, limit, and search term from query parameters
     const page = parseInt(req.query.page, 10) || 1; // Default to page 1
     const limit = parseInt(req.query.limit, 10) || 10; // Default to 20 items per page
-    const search = req.query.search || ""; // Default to an empty string
+    const search = req.query.search || ''; // Default to an empty string
 
     // Calculate the number of items to skip
     const skip = (page - 1) * limit;
@@ -275,8 +301,8 @@ export const getAllItemsAdmin = async (req, res) => {
     const searchFilter = search
       ? {
           $or: [
-            { itemCode: { $regex: search, $options: "i" } },
-            { itemDescription: { $regex: search, $options: "i" } },
+            { itemCode: { $regex: search, $options: 'i' } },
+            { itemDescription: { $regex: search, $options: 'i' } },
           ],
         }
       : {};
@@ -285,7 +311,7 @@ export const getAllItemsAdmin = async (req, res) => {
     const allItems = await Item.find(searchFilter)
       .skip(skip)
       .limit(limit)
-      .populate("project", "name");
+      .populate('project', 'name');
 
     // Get the total number of matching items
     const totalItems = await Item.countDocuments(searchFilter);
@@ -298,8 +324,8 @@ export const getAllItemsAdmin = async (req, res) => {
       totalItems,
     });
   } catch (error) {
-    console.error("Error fetching items:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error('Error fetching items:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -308,7 +334,7 @@ export const getAllProjectItems = async (req, res) => {
     const { id } = req.params; // Project ID from the request parameters
     const page = parseInt(req.query.page, 10) || 1; // Default to page 1
     const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 items per page
-    const search = req.query.search || ""; // Default to an empty search string
+    const search = req.query.search || ''; // Default to an empty search string
 
     // Calculate the number of items to skip
     const skip = (page - 1) * limit;
@@ -318,8 +344,8 @@ export const getAllProjectItems = async (req, res) => {
       project: id,
       ...(search && {
         $or: [
-          { itemCode: { $regex: search, $options: "i" } },
-          { itemDescription: { $regex: search, $options: "i" } },
+          { itemCode: { $regex: search, $options: 'i' } },
+          { itemDescription: { $regex: search, $options: 'i' } },
         ],
       }),
     };
@@ -328,7 +354,7 @@ export const getAllProjectItems = async (req, res) => {
     const allItems = await Item.find(filter)
       .skip(skip)
       .limit(limit)
-      .populate("project", "name");
+      .populate('project', 'name');
 
     // Get the total number of matching items for the given project
     const totalItems = await Item.countDocuments(filter);
@@ -341,7 +367,7 @@ export const getAllProjectItems = async (req, res) => {
       totalItems,
     });
   } catch (error) {
-    console.error("Error fetching items:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error('Error fetching items:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

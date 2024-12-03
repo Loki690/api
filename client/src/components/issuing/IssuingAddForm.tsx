@@ -40,13 +40,13 @@ import {
   CommandList,
 } from '../ui/command';
 import { IItemProps } from '@/interfaces/IItem';
-import { IDepartments } from '@/interfaces/IDepartment';
+//import { IDepartments } from '@/interfaces/IDepartment';
 import { ISubprojects } from '@/interfaces/ISubproject';
 
 export default function IssuingAddForm({
   users,
   items,
-  departments,
+  //departments,
   subprojects,
   projects,
   issuanceNo,
@@ -75,7 +75,7 @@ export default function IssuingAddForm({
           ? `${projects.prefix}-0000-${incrementedNumber}`
           : `${parts.join('-')}-0000-${incrementedNumber}`;
       })(),
-      department: '',
+      //department: '',
       projects: '',
       purpose: '',
       requisitioner: '',
@@ -92,10 +92,10 @@ export default function IssuingAddForm({
     control: form.control,
     name: 'items',
   });
-  console.log(projects?.prefix);
-  function handleDepartmentSelect(itemId: any) {
-    form.setValue('department', itemId); // Update the form's itemId value
-  }
+  //console.log(projects?.prefix);
+  // function handleDepartmentSelect(itemId: any) {
+  //   form.setValue('department', itemId); // Update the form's itemId value
+  // }
   function handleSubprojectSelect(itemId: any) {
     form.setValue('projects', itemId); // Update the form's itemId value
   }
@@ -131,14 +131,18 @@ export default function IssuingAddForm({
         normalizedData.forEach((item) => {
           addIssuedItem(item, projectId);
         });
-
-        queryClient.invalidateQueries({ queryKey: ['getIssuedItems'] });
         queryClient.invalidateQueries({ queryKey: ['getIssuanceNo'] });
+        queryClient.invalidateQueries({ queryKey: ['getIssuedItems'] });
+        queryClient.invalidateQueries({
+          queryKey: ['getIssuedItemsSelection'],
+        });
         toast({
           title: 'SIL Added',
           description: 'SIL successfully added',
         });
-        form.reset({});
+        form.reset({
+          ...values,
+        });
       },
       onError: (err) => {
         toast({ title: 'Error adding', description: `${err}` });
@@ -157,7 +161,7 @@ export default function IssuingAddForm({
             <div className="flex gap-2">
               <div className="flex">
                 <div className="grid grid-rows-6 items-center text-sm">
-                  <p>Department </p>
+                  {/* <p>Department </p> */}
                   <p>Project Name </p>
                   <p>Purpose</p>
                   <p>Requisitioner</p>
@@ -166,7 +170,7 @@ export default function IssuingAddForm({
                 </div>
               </div>
               <div className="flex-1 grid grid-rows-6 gap-2">
-                <div className="">
+                {/* <div className="">
                   <FormField
                     control={form.control}
                     name="department"
@@ -238,7 +242,7 @@ export default function IssuingAddForm({
                       </FormItem>
                     )}
                   />
-                </div>
+                </div> */}
                 <div className="">
                   <FormField
                     control={form.control}
@@ -329,146 +333,159 @@ export default function IssuingAddForm({
                   <FormField
                     control={form.control}
                     name="requisitioner"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center">
-                        <FormLabel className="mr-2">:</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  'w-full md:w-1/2 justify-between',
-                                  !field.value && 'text-muted-foreground'
-                                )}
-                              >
-                                {field.value
-                                  ? users.find(
-                                      (user: IUserProps) =>
-                                        user._id === field.value
-                                    )?.firstName +
-                                    ' ' +
-                                    users.find(
-                                      (user: IUserProps) =>
-                                        user._id === field.value
-                                    )?.lastName
-                                  : 'Select Requisitioner'}
-                                <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[320px] p-0">
-                            <Command>
-                              <CommandInput placeholder="Search Item..." />
-                              <CommandList>
-                                <CommandEmpty>No Item found.</CommandEmpty>
-                                <CommandGroup>
-                                  {users.map((user: IUserProps) => (
-                                    <CommandItem
-                                      value={
-                                        user.firstName + ' ' + user.lastName
-                                      }
-                                      key={user._id}
-                                      onSelect={() => {
-                                        form.setValue(
-                                          'requisitioner',
-                                          user._id
-                                        ); // Set form itemId to user._id
-                                        handleRequisitionerSelect(user._id); // Update selectedItem state
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          'mr-2  w-4',
-                                          user._id ===
-                                            form.getValues('requisitioner') // Compare user._id with the value set in form
-                                            ? 'opacity-100'
-                                            : 'opacity-0'
-                                        )}
-                                      />
-                                      {user.firstName} {user.lastName}
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      // Filter users based on role for requisitioner
+                      const filteredUsers = users.filter(
+                        (user: IUserProps) => user.role === 'Crew' // Only show Crew role for requisitioner
+                      );
+
+                      return (
+                        <FormItem className="flex items-center">
+                          <FormLabel className="mr-2">:</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    'w-full md:w-1/2 justify-between',
+                                    !field.value && 'text-muted-foreground'
+                                  )}
+                                >
+                                  {field.value
+                                    ? filteredUsers.find(
+                                        (user: IUserProps) =>
+                                          user._id === field.value
+                                      )?.firstName +
+                                      ' ' +
+                                      filteredUsers.find(
+                                        (user: IUserProps) =>
+                                          user._id === field.value
+                                      )?.lastName
+                                    : 'Select Requisitioner'}
+                                  <ChevronsUpDown className="ml-2 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[320px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Search User..." />
+                                <CommandList>
+                                  <CommandEmpty>No user found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {filteredUsers.map((user: IUserProps) => (
+                                      <CommandItem
+                                        value={
+                                          user.firstName + ' ' + user.lastName
+                                        }
+                                        key={user._id}
+                                        onSelect={() => {
+                                          form.setValue(
+                                            'requisitioner',
+                                            user._id
+                                          ); // Set form field to selected user ID
+                                          handleRequisitionerSelect(user._id); // Additional handler for custom logic
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            'mr-2 w-4',
+                                            user._id ===
+                                              form.getValues('requisitioner')
+                                              ? 'opacity-100'
+                                              : 'opacity-0'
+                                          )}
+                                        />
+                                        {user.firstName} {user.lastName}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
                 </div>
                 <div className="">
                   <FormField
                     control={form.control}
                     name="members"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center">
-                        <FormLabel className="mr-2">:</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  'w-full justify-between',
-                                  !field.value.length && 'text-muted-foreground'
-                                )}
-                              >
-                                {field.value.length > 0
-                                  ? field.value
-                                      .map((id: string) => {
-                                        const user = users.find(
-                                          (u: { _id: string }) => u._id === id
-                                        );
-                                        return `${user?.firstName} ${user?.lastName}`;
-                                      })
-                                      .join(', ')
-                                  : 'Select Members'}
-                                <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[630px] p-0">
-                            <Command>
-                              <CommandInput placeholder="Search Item..." />
-                              <CommandList>
-                                <CommandEmpty>No Item found.</CommandEmpty>
-                                <CommandGroup>
-                                  {users.map((user: IUserProps) => (
-                                    <CommandItem
-                                      value={
-                                        user.firstName + ' ' + user.lastName
-                                      }
-                                      key={user._id}
-                                      onSelect={() =>
-                                        handleMemberSelect(user._id)
-                                      }
-                                    >
-                                      <Check
-                                        className={cn(
-                                          'mr-2  w-4',
-                                          form
-                                            .getValues('members')
-                                            .includes(user._id)
-                                            ? 'opacity-100'
-                                            : 'opacity-0'
-                                        )}
-                                      />
-                                      {user.firstName} {user.lastName}
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const filteredUsers = users.filter(
+                        (user: IUserProps) => user.role === 'Crew'
+                      );
+                      return (
+                        <FormItem className="flex items-center">
+                          <FormLabel className="mr-2">:</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    'w-full justify-between',
+                                    !field.value.length &&
+                                      'text-muted-foreground'
+                                  )}
+                                >
+                                  {field.value.length > 0
+                                    ? field.value
+                                        .map((id: string) => {
+                                          const user = filteredUsers.find(
+                                            (u: { _id: string }) => u._id === id
+                                          );
+                                          return `${user?.firstName} ${user?.lastName}`;
+                                        })
+                                        .join(', ')
+                                    : 'Select Members'}
+                                  <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[630px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Search Item..." />
+                                <CommandList>
+                                  <CommandEmpty>No Item found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {filteredUsers.map((user: IUserProps) => (
+                                      <CommandItem
+                                        value={
+                                          user.firstName + ' ' + user.lastName
+                                        }
+                                        key={user._id}
+                                        onSelect={() =>
+                                          handleMemberSelect(user._id)
+                                        }
+                                      >
+                                        <Check
+                                          className={cn(
+                                            'mr-2  w-4',
+                                            form
+                                              .getValues('members')
+                                              .includes(user._id)
+                                              ? 'opacity-100'
+                                              : 'opacity-0'
+                                          )}
+                                        />
+                                        {user.firstName} {user.lastName}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
                 </div>
 
@@ -764,199 +781,216 @@ export default function IssuingAddForm({
             <FormField
               control={form.control}
               name="releasedBy"
-              render={({ field }) => (
-                <FormItem className="flex flex-col items-center">
-                  <FormLabel className="text-center">Released By</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            'w-full md:w-1/2  justify-between',
-                            !field.value && 'text-muted-foreground'
-                          )}
-                        >
-                          {field.value
-                            ? users.find(
-                                (user: IUserProps) => user._id === field.value
-                              )?.firstName +
-                              ' ' +
-                              users.find(
-                                (user: IUserProps) => user._id === field.value
-                              )?.lastName
-                            : 'Select Released By'}
-                          <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[240px] p-0">
-                      <Command>
-                        <CommandInput placeholder="Search User" />
-                        <CommandList>
-                          <CommandEmpty>No Item found.</CommandEmpty>
-                          <CommandGroup>
-                            {users.map((user: IUserProps) => (
-                              <CommandItem
-                                value={user.firstName + ' ' + user.lastName}
-                                key={user._id}
-                                onSelect={() => {
-                                  form.setValue('releasedBy', user._id); // Set form itemId to user._id
-                                  handleReleasedBySelect(user._id); // Update selectedItem state
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    'mr-2  w-4',
-                                    user._id === form.getValues('releasedBy') // Compare user._id with the value set in form
-                                      ? 'opacity-100'
-                                      : 'opacity-0'
-                                  )}
-                                />
-                                {user.firstName} {user.lastName}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const filteredUsers = users.filter(
+                  (user: IUserProps) => user.role === 'Inventory'
+                );
+
+                return (
+                  <FormItem className="flex flex-col items-center">
+                    <FormLabel className="text-center">Released By</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              'w-full md:w-1/2  justify-between',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value
+                              ? filteredUsers.find(
+                                  (user: IUserProps) => user._id === field.value
+                                )?.firstName +
+                                ' ' +
+                                filteredUsers.find(
+                                  (user: IUserProps) => user._id === field.value
+                                )?.lastName
+                              : 'Select Released By'}
+                            <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[240px] p-0">
+                        <Command>
+                          <CommandInput placeholder="Search User" />
+                          <CommandList>
+                            <CommandEmpty>No Item found.</CommandEmpty>
+                            <CommandGroup>
+                              {filteredUsers.map((user: IUserProps) => (
+                                <CommandItem
+                                  value={user.firstName + ' ' + user.lastName}
+                                  key={user._id}
+                                  onSelect={() => {
+                                    form.setValue('releasedBy', user._id); // Set form itemId to user._id
+                                    handleReleasedBySelect(user._id); // Update selectedItem state
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      'mr-2  w-4',
+                                      user._id === form.getValues('releasedBy') // Compare user._id with the value set in form
+                                        ? 'opacity-100'
+                                        : 'opacity-0'
+                                    )}
+                                  />
+                                  {user.firstName} {user.lastName}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <FormField
               control={form.control}
               name="receivedBy"
-              render={({ field }) => (
-                <FormItem className="flex flex-col items-center">
-                  <FormLabel className="text-center">Received By</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            'w-full md:w-1/2 justify-between',
-                            !field.value && 'text-muted-foreground'
-                          )}
-                        >
-                          {field.value
-                            ? users.find(
-                                (user: IUserProps) => user._id === field.value
-                              )?.firstName +
-                              ' ' +
-                              users.find(
-                                (user: IUserProps) => user._id === field.value
-                              )?.lastName
-                            : 'Select Received By'}
-                          <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[240px] p-0">
-                      <Command>
-                        <CommandInput placeholder="Search User" />
-                        <CommandList>
-                          <CommandEmpty>No Item found.</CommandEmpty>
-                          <CommandGroup>
-                            {users.map((user: IUserProps) => (
-                              <CommandItem
-                                value={user.firstName + ' ' + user.lastName}
-                                key={user._id}
-                                onSelect={() => {
-                                  form.setValue('receivedBy', user._id); // Set form itemId to user._id
-                                  handleReceivedBySelect(user._id); // Update selectedItem state
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    'mr-2  w-4',
-                                    user._id === form.getValues('receivedBy') // Compare user._id with the value set in form
-                                      ? 'opacity-100'
-                                      : 'opacity-0'
-                                  )}
-                                />
-                                {user.firstName} {user.lastName}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const filteredUsers = users.filter(
+                  (user: IUserProps) => user.role === 'Crew'
+                );
+                return (
+                  <FormItem className="flex flex-col items-center">
+                    <FormLabel className="text-center">Received By</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              'w-full md:w-1/2 justify-between',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value
+                              ? filteredUsers.find(
+                                  (user: IUserProps) => user._id === field.value
+                                )?.firstName +
+                                ' ' +
+                                filteredUsers.find(
+                                  (user: IUserProps) => user._id === field.value
+                                )?.lastName
+                              : 'Select Received By'}
+                            <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[240px] p-0">
+                        <Command>
+                          <CommandInput placeholder="Search User" />
+                          <CommandList>
+                            <CommandEmpty>No Item found.</CommandEmpty>
+                            <CommandGroup>
+                              {filteredUsers.map((user: IUserProps) => (
+                                <CommandItem
+                                  value={user.firstName + ' ' + user.lastName}
+                                  key={user._id}
+                                  onSelect={() => {
+                                    form.setValue('receivedBy', user._id); // Set form itemId to user._id
+                                    handleReceivedBySelect(user._id); // Update selectedItem state
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      'mr-2  w-4',
+                                      user._id === form.getValues('receivedBy') // Compare user._id with the value set in form
+                                        ? 'opacity-100'
+                                        : 'opacity-0'
+                                    )}
+                                  />
+                                  {user.firstName} {user.lastName}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <FormField
               control={form.control}
               name="approvedBy"
-              render={({ field }) => (
-                <FormItem className="flex flex-col items-center">
-                  <FormLabel className="text-center">
-                    Verified and Approved By
-                  </FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            'w-full md:w-1/2 justify-between',
-                            !field.value && 'text-muted-foreground'
-                          )}
-                        >
-                          {field.value
-                            ? users.find(
-                                (user: IUserProps) => user._id === field.value
-                              )?.firstName +
-                              ' ' +
-                              users.find(
-                                (user: IUserProps) => user._id === field.value
-                              )?.lastName
-                            : 'Select approver'}
-                          <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[240px] p-0">
-                      <Command>
-                        <CommandInput placeholder="Search User..." />
-                        <CommandList>
-                          <CommandEmpty>No Item found.</CommandEmpty>
-                          <CommandGroup>
-                            {users.map((user: IUserProps) => (
-                              <CommandItem
-                                value={user.firstName + ' ' + user.lastName}
-                                key={user._id}
-                                onSelect={() => {
-                                  form.setValue('approvedBy', user._id); // Set form itemId to user._id
-                                  handleApproverSelect(user._id); // Update selectedItem state
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    'mr-2  w-4',
-                                    user._id === form.getValues('approvedBy') // Compare user._id with the value set in form
-                                      ? 'opacity-100'
-                                      : 'opacity-0'
-                                  )}
-                                />
-                                {user.firstName} {user.lastName}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const filteredUsers = users.filter(
+                  (user: IUserProps) => user.role === 'Head'
+                );
+
+                return (
+                  <FormItem className="flex flex-col items-center">
+                    <FormLabel className="text-center">
+                      Verified and Approved By
+                    </FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              'w-full md:w-1/2 justify-between',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value
+                              ? filteredUsers.find(
+                                  (user: IUserProps) => user._id === field.value
+                                )?.firstName +
+                                ' ' +
+                                filteredUsers.find(
+                                  (user: IUserProps) => user._id === field.value
+                                )?.lastName
+                              : 'Select approver'}
+                            <ChevronsUpDown className="ml-2  w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[240px] p-0">
+                        <Command>
+                          <CommandInput placeholder="Search User..." />
+                          <CommandList>
+                            <CommandEmpty>No Item found.</CommandEmpty>
+                            <CommandGroup>
+                              {filteredUsers.map((user: IUserProps) => (
+                                <CommandItem
+                                  value={user.firstName + ' ' + user.lastName}
+                                  key={user._id}
+                                  onSelect={() => {
+                                    form.setValue('approvedBy', user._id); // Set form itemId to user._id
+                                    handleApproverSelect(user._id); // Update selectedItem state
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      'mr-2  w-4',
+                                      user._id === form.getValues('approvedBy') // Compare user._id with the value set in form
+                                        ? 'opacity-100'
+                                        : 'opacity-0'
+                                    )}
+                                  />
+                                  {user.firstName} {user.lastName}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
           </div>
           <Button type="submit" disabled={isPending} className="mt-5">

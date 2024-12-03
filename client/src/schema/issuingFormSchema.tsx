@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const issuanceListSchema = z.object({
   dateIssued: z.date(),
   stockIssuanceNo: z.string(),
-  department: z.string(),
+  //department: z.string(),
   projects: z.string(),
   purpose: z.string(),
   requisitioner: z.string(),

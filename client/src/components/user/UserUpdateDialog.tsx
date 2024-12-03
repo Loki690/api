@@ -51,7 +51,7 @@ export default function UserUpdateDialog({
       firstName: users.firstName,
       password: '',
       lastName: users.lastName,
-      isAdmin: users.isAdmin || false,
+      role: users.role,
       //project: users.project,
     },
   });
@@ -65,7 +65,6 @@ export default function UserUpdateDialog({
   // });
 
   function onSubmit(values: z.infer<typeof updateUserFormSchema>) {
-    console.log(values);
     //need to change the api
     userUpdate(
       { userId: users._id, userData: values },
@@ -150,28 +149,35 @@ export default function UserUpdateDialog({
             ></FormField>
             <FormField
               control={form.control}
-              name="isAdmin"
+              name="role"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
                   <Select
-                    onValueChange={(value) => field.onChange(value === 'true')} // Convert string "true" or "false" to boolean
-                    defaultValue={String(field.value)} // Convert current boolean to string for Select component
+                    value={field.value} // Bind the Select value to the form field
+                    onValueChange={(value) => field.onChange(value)}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select Role" />
+                        <SelectValue placeholder="Select Role">
+                          {field.value || 'Select Role'}
+                        </SelectValue>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="true">Admin</SelectItem>
-                      <SelectItem value="false">User</SelectItem>
+                      <SelectItem value="Admin">Admin</SelectItem>
+                      <SelectItem value="Head">Department Head</SelectItem>
+                      <SelectItem value="Inventory">
+                        Inventory Officer
+                      </SelectItem>
+                      <SelectItem value="Crew">Crew</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )}
             ></FormField>
+
             <Button className="mt-2" type="submit" disabled={isPending}>
               {isPending ? (
                 <LoaderCircle className="icon-size-5 animate-spin" />
