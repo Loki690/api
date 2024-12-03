@@ -3,8 +3,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
@@ -16,7 +14,7 @@ import UserDeleteDialog from "./UserDeleteDialog";
 import UserUpdateDialog from "./UserUpdateDialog";
 import { UpdateIcon } from "@radix-ui/react-icons";
 import { User } from "@/types/UserTypes";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useUserStore } from "@/store/useUserStore";
 import { updateUserProjects } from "@/services/AddUserService";
 import { useNavigate } from "react-router-dom";
@@ -74,7 +72,6 @@ export const userColumns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const [showDeleteUser, setShowDeleteUser] = useState(false);
       const [showUpdateUser, setShowUpdateUser] = useState(false);
-      const queryClient = useQueryClient();
       const { getProjects } = useUserStore();
       const navigate = useNavigate();
       const { mutate: updateUserProject, isPending } = updateUserProjects();

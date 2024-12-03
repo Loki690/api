@@ -10,7 +10,6 @@ import { useParams } from 'react-router-dom';
 import { useIssuanceList } from '@/store/useIssuanceStore';
 import IssuingUpdateForm from './IssuingUpdateForm';
 import { useSubprojects } from '@/store/useSubproject';
-import { useDepartments } from '@/store/useDepartmentStore';
 //import { IDepartments } from "@/interfaces/IDepartment";
 import { ISubprojects } from '@/interfaces/ISubproject';
 import { useProjectStore } from '@/store/useProjectStore';

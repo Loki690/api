@@ -42,7 +42,6 @@ import { format } from 'date-fns';
 import { Calendar } from '../ui/calendar';
 import { Input } from '../ui/Input';
 import { IUserProps } from '@/interfaces/IAuth';
-import { IDepartments } from '@/interfaces/IDepartment';
 import { ISubprojects } from '@/interfaces/ISubproject';
 
 export default function IssuingUpdateForm({
